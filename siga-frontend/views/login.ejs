@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIGA - Iniciar Sesion</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="card login-card">
+      <div class="brand">
+        <h1>SIGA</h1>
+        <p class="subtitle">AGROSERVICES P&amp;D SAS</p>
+      </div>
+
+      <h2>Iniciar Sesion</h2>
+
+      <% if (error) { %>
+        <div class="error"><%= error %></div>
+      <% } %>
+
+      <form action="/login" method="POST">
+        <div class="form-group">
+          <label for="email">Correo electronico:</label>
+          <input type="email" id="email" name="email" placeholder="admin@agroservices.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contrasena:</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

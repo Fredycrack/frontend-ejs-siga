@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIGA - Empleados</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <h1>SIGA - AGROSERVICES</h1>
+    <div class="navbar-links">
+      <a href="/menu">Menu</a>
+      <a href="/logout">Cerrar Sesion</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <h1>Lista de Empleados</h1>
+        <a href="/empleados/nuevo" class="btn btn-primary">+ Nuevo Empleado</a>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Documento</th>
+              <th>Email</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% empleados.forEach(empleado => { %>
+              <tr>
+                <td><%= empleado.id_empleado %></td>
+                <td><%= empleado.nombre %></td>
+                <td><%= empleado.documento %></td>
+                <td><%= empleado.email %></td>
+                <td><%= empleado.rol %></td>
+                <td>
+                  <span class="state state-<%= (empleado.estado || '').toLowerCase() %>"><%= empleado.estado %></span>
+                </td>
+                <td>
+                  <div class="actions">
+                    <a href="/empleados/editar/<%= empleado.id_empleado %>" class="btn btn-sm btn-primary">Editar</a>
+                    <form action="/empleados/eliminar" method="POST" style="display: inline;">
+                      <input type="hidden" name="id" value="<%= empleado.id_empleado %>">
+                      <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Eliminar este empleado?')">Eliminar</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+
+      <% if (empleados.length === 0) { %>
+        <p style="text-align: center; color: #777; margin-top: 2rem;">
+          No hay empleados registrados.
+        </p>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>
