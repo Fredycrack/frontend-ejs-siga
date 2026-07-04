@@ -111,4 +111,64 @@ export const postCrearEmpleado = async (req, res) => {
 
 // ============================================
 // EDITAR EMPLEADO
-//
+// ============================================
+export const getEditarEmpleado = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const response = await fetch(`${API_URL}/empleados/${id}`, {
+      headers: { "Authorization": `Bearer ${req.session.token}` }
+    });
+    if (!response.ok) {
+      return res.redirect("/empleados");
+    }
+    const empleado = await response.json();
+    res.render("editar", { empleado, error: null });
+  } catch (error) {
+    console.error("Error:", error);
+    res.redirect("/empleados");
+  }
+};
+
+export const postEditarEmpleado = async (req, res) => {
+  const { id, nombre, documento, email, telefono, rol, salario_base, codigo_qr, estado, fecha_ingreso } = req.body;
+  try {
+    const response = await fetch(`${API_URL}/empleados/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${req.session.token}`
+      },
+      body: JSON.stringify({ nombre, documento, email, telefono, rol, salario_base, codigo_qr, estado, fecha_ingreso })
+    });
+    if (!response.ok) {
+      const data = await response.json();
+      const empleado = { id_empleado: id, nombre, documento, email, telefono, rol, salario_base, codigo_qr, estado, fecha_ingreso };
+      return res.render("editar", { empleado, error: data.error || "Error al actualizar" });
+    }
+    res.redirect("/empleados");
+  } catch (error) {
+    console.error("Error:", error);
+    const empleado = { id_empleado: id, nombre, documento, email, telefono, rol, salario_base, codigo_qr, estado, fecha_ingreso };
+    res.render("editar", { empleado, error: "Error de conexion" });
+  }
+};
+
+// ============================================
+// ELIMINAR EMPLEADO
+// ============================================
+export const postEliminarEmpleado = async (req, res) => {
+  const { id } = req.body;
+  try {
+    const response = await fetch(`${API_URL}/empleados/${id}`, {
+      method: "DELETE",
+      headers: { "Authorization": `Bearer ${req.session.token}` }
+    });
+    if (!response.ok) {
+      console.error("Error al eliminar empleado");
+    }
+    res.redirect("/empleados");
+  } catch (error) {
+    console.error("Error:", error);
+    res.redirect("/empleados");
+  }
+};
