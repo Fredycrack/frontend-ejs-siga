@@ -1,50 +1,33 @@
-import fetch from "node-fetch";
+import express from "express";
+import session from "express-session";
+import rutas from "./app/routes/routes.views.js";
 
-const API_URL = process.env.API_URL || "http://localhost:3000/api";
+const app = express();
+const PORT = process.env.PORT || 4000;
 
-// ============================================
-// LOGIN  (CU3.7 Gestionar Autenticacion)
-// ============================================
-export const getLogin = (req, res) => {
-  if (req.session.token) {
-    return res.redirect("/menu");
-  }
-  res.render("login", { error: null });
-};
+// Configurar EJS como motor de plantillas
+app.set("view engine", "ejs");
+app.set("views", "./views");
 
-export const postLogin = async (req, res) => {
-  const { email, password } = req.body;
+// Archivos estaticos (CSS)
+app.use(express.static("public"));
 
-  try {
-    const response = await fetch(`${API_URL}/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
+// Parseo de datos de formularios y JSON
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-    const data = await response.json();
+// Configuracion de sesiones (2 horas de duracion)
+app.use(session({
+  secret: "siga_secreto_super_seguro",
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 2 * 60 * 60 * 1000 }
+}));
 
-    if (!response.ok) {
-      return res.render("login", { error: data.error || "Credenciales invalidas" });
-    }
+// Registrar rutas
+app.use("/", rutas);
 
-    // Guardar token y datos del empleado en la sesion
-    req.session.token = data.token;
-    req.session.empleado = data.empleado;
-    res.redirect("/menu");
-  } catch (error) {
-    console.error("Error en login:", error);
-    res.render("login", { error: "Error de conexion con el servidor" });
-  }
-};
-
-// ============================================
-// MENU PRINCIPAL
-// ============================================
-export const getMenu = (req, res) => {
-  res.render("menu", { empleado: req.session.empleado });
-};
-
-export const logout = (req, res) => {
-  req.session.destroy((err) => {
-    if (err) console.error("Error al cerrar
+// Iniciar servidor
+app.listen(PORT, () => {
+  console.log(`Frontend SIGA corriendo en el puerto ${PORT}`);
+});
