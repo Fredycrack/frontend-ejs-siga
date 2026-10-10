@@ -1,0 +1,32 @@
+<%- include('../partials/arriba', { titulo: 'Mi asistencia y nomina' }) %>
+<%- include('../partials/encabezado', { titulo: 'Mi asistencia y nomina', subtitulo: 'Sus registros de entrada y salida y sus liquidaciones de nomina.' }) %>
+<div class="rejilla rejilla-2">
+  <div class="tarjeta">
+    <h2>Asistencia reciente</h2>
+    <% if (!asistencia.length) { %><p class="vacio">Sin registros.</p><% } else { %>
+    <div class="tabla-contenedor"><table>
+      <thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th class="num">Horas</th></tr></thead>
+      <tbody><% asistencia.slice(0, 31).forEach(function (a) { %>
+        <tr><td class="nowrap"><%= f.fecha(a.fecha) %></td><td><%= f.hora(a.hora_entrada) %></td><td><%= a.hora_salida ? f.hora(a.hora_salida) : 'En turno' %></td><td class="num"><%= a.horas === null ? '—' : f.numero(a.horas, 2) %></td></tr>
+      <% }) %></tbody>
+    </table></div>
+    <% } %>
+  </div>
+  <div class="tarjeta">
+    <h2>Mis liquidaciones de nomina</h2>
+    <% if (!nomina.length) { %><p class="vacio">Aun no hay liquidaciones.</p><% } else { %>
+      <% nomina.forEach(function (n) { %>
+        <div style="border:1px solid var(--borde);border-radius:8px;padding:.8rem 1rem;margin-bottom:.8rem">
+          <div class="tarjeta-cabeza" style="margin-bottom:.4rem"><strong><%= f.fecha(n.periodo_inicio) %> a <%= f.fecha(n.periodo_fin) %></strong><strong><%= f.pesos(n.total) %></strong></div>
+          <dl class="ficha pequeno">
+            <dt>Dias trabajados</dt><dd><%= n.dias_trabajados %> de <%= n.dias_laborables %></dd>
+            <dt>Valor de los dias</dt><dd><%= f.pesos(n.valor_dias) %></dd>
+            <dt>Bonificacion por productividad</dt><dd><%= f.pesos(n.bonificacion) %> (<%= n.labores_finalizadas %> labores, <%= n.tareas_completadas %> tareas)</dd>
+            <dt>Deducciones (salud y pension)</dt><dd>- <%= f.pesos(n.deducciones) %></dd>
+          </dl>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</div>
+<%- include('../partials/abajo') %>

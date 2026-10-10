@@ -1,0 +1,22 @@
+<%- include('../partials/arriba', { titulo: 'Lector QR de asistencia' }) %>
+<%- include('../partials/encabezado', { titulo: 'Lector QR de asistencia', subtitulo: 'Ubique el carne del empleado frente a la camara. La primera lectura del dia registra la entrada y la siguiente la salida.', migas: [['Asistencia', '/asistencia']] }) %>
+<div class="lector">
+  <div class="tarjeta">
+    <div id="lector-video"></div>
+    <p class="tenue pequeno" id="estado-camara" style="margin-top:.6rem">Iniciando la camara...</p>
+    <form id="form-codigo" class="filtros" style="margin:1rem 0 0">
+      <div class="campo" style="flex:1"><label for="codigo-manual">O escriba el codigo del carne</label><input id="codigo-manual" class="mono" placeholder="QR-EMP-003" autocomplete="off"></div>
+      <button class="btn btn-primario" type="submit">Registrar</button>
+    </form>
+  </div>
+  <div>
+    <div class="tarjeta resultado-qr" id="resultado">
+      <p class="tenue">Esperando lectura...</p>
+    </div>
+    <div class="tarjeta">
+      <h2>Ultimos registros</h2>
+      <ul id="ultimos" class="linea-tiempo" style="margin-top:.6rem"></ul>
+    </div>
+  </div>
+</div>
+<%- include('../partials/abajo', { scripts: ['/js/vendor/html5-qrcode.min.js', '/js/kiosco.js'] }) %>

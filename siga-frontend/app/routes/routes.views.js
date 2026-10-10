@@ -5,6 +5,7 @@ import { inicio } from '../controllers/controller.inicio.js';
 import * as agricola from '../controllers/controller.agricola.js';
 import * as tecnologico from '../controllers/controller.tecnologico.js';
 import * as admin from '../controllers/controller.administrativo.js';
+import * as personal from '../controllers/controller.personal.js';
 
 /**
  * Paginas de los empleados, agrupadas por modulo del sistema.
@@ -19,6 +20,9 @@ router.use(verificarSesion);
 router.get('/inicio', inicio);
 
 // ---------- Mi trabajo (todos los empleados) ----------
+router.get('/mis-tareas', personal.misTareas);                       // RF21
+router.get('/mi-registro', personal.miRegistro);
+router.get('/mi-sst', personal.miSST);
 
 // ---------- Modulo 1: servicios agricolas ----------
 router.get('/mis-labores', rol(C), agricola.misLabores);             // RF08 a RF10, RF12
@@ -55,6 +59,12 @@ router.get('/auditoria', soloAdmin, admin.auditoria);                // RNF07
 router.get('/respaldo', soloAdmin, admin.respaldo);                  // RF05
 
 // ---------- Modulo 4: gestion de personal ----------
+router.get('/asistencia', rol(S, G), personal.asistencia);           // RF19
+router.get('/asistencia/kiosco', rol(S), personal.kiosco);
+router.get('/tareas', rol(S, G), personal.tareas);                   // RF20
+router.get('/tareas/nueva', rol(S), personal.nuevaTarea);
+router.get(`/tareas/${ID}/editar`, rol(S), personal.editarTarea);
+router.get('/nomina', rol(G), personal.nomina);                      // RF22
 
 // ---------- Modulo 5: inventario ----------
 
