@@ -4,12 +4,12 @@
  *   de campo) y "Mi taller" (tecnico) para usarlas y registrar avances sin senal.
  * - Las llamadas a /api nunca se guardan: siempre van a la red.
  */
-const VERSION = 'siga-2.0.0';
+const VERSION = 'siga-2.0.1';
 const ESTATICOS = [
-  '/css/siga.css', '/js/siga.js', '/js/cola-offline.js', '/js/campo.js', '/img/logo.svg',
+  '/css/siga.css', '/js/siga.js', '/js/cola-offline.js', '/js/campo.js', '/js/taller.js', '/img/logo.svg',
   '/img/icono-192.png', '/manifest.webmanifest', '/offline'
 ];
-const PAGINAS_OFFLINE = ['/mis-labores'];
+const PAGINAS_OFFLINE = ['/mis-labores', '/mi-taller'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(ESTATICOS)).then(() => self.skipWaiting()));

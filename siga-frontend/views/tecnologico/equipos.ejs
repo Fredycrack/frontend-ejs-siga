@@ -1,0 +1,33 @@
+<%- include('../partials/arriba', { titulo: 'Equipos en taller' }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Equipos en taller',
+  subtitulo: 'Recepcion, diagnostico, reparacion y entrega de equipos electronicos.',
+  acciones: es('Tecnico Electronico') ? [{ texto: 'Recibir equipo', ruta: '/equipos/nuevo', clase: 'btn-primario' }] : []
+}) %>
+<div class="pestanas">
+  <% [['', 'Todos'], ['Recibido', 'Recibidos'], ['En diagnostico', 'En diagnostico'], ['En proceso', 'En reparacion'], ['Completado', 'Listos para entregar'], ['Entregado', 'Entregados']].forEach(function (p) { %>
+    <a class="<%= (q.estado || '') === p[0] ? 'activa' : '' %>" href="/equipos<%= p[0] ? '?estado=' + encodeURIComponent(p[0]) : '' %>"><%= p[1] %></a>
+  <% }) %>
+</div>
+<div class="tarjeta">
+  <% if (!equipos.length) { %>
+    <p class="vacio">No hay equipos en este estado.</p>
+  <% } else { %>
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Codigo</th><th>Equipo</th><th>Cliente</th><th>Recibido</th><th>Estado</th><th class="num">Cotizacion</th></tr></thead>
+    <tbody>
+    <% equipos.forEach(function (e) { %>
+      <tr>
+        <td><a class="mono" href="/equipos/<%= e.id_equipo %>"><strong><%= e.codigo_seguimiento %></strong></a></td>
+        <td><%= e.tipo_equipo %><div class="tenue pequeno"><%= [e.marca, e.modelo].filter(Boolean).join(' ') %></div></td>
+        <td><%= e.nombre_cliente %><div class="tenue pequeno"><%= e.telefono_cliente || '' %></div></td>
+        <td class="nowrap"><%= f.fecha(e.fecha_recepcion) %></td>
+        <td><%- include('../partials/estado', { valor: e.estado }) %></td>
+        <td class="num"><%= f.pesos(e.valor_cotizacion) %><% if (e.valor_cotizacion !== null) { %><div class="pequeno <%= e.cotizacion_aprobada ? '' : 'tenue' %>"><%= e.cotizacion_aprobada ? 'Aprobada' : 'Por aprobar' %></div><% } %></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table></div>
+  <% } %>
+</div>
+<%- include('../partials/abajo') %>

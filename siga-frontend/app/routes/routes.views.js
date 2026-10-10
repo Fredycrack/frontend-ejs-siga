@@ -3,6 +3,7 @@ import { verificarSesion, rol, soloAdmin } from '../middleware/auth.middleware.j
 import { ROLES } from '../config/menu.js';
 import { inicio } from '../controllers/controller.inicio.js';
 import * as agricola from '../controllers/controller.agricola.js';
+import * as tecnologico from '../controllers/controller.tecnologico.js';
 
 /**
  * Paginas de los empleados, agrupadas por modulo del sistema.
@@ -27,6 +28,11 @@ router.get(`/labores/${ID}`, rol(S, G, C), agricola.detalle);
 router.get(`/labores/${ID}/editar`, rol(S), agricola.editar);
 
 // ---------- Modulo 2: servicios tecnologicos ----------
+router.get('/mi-taller', rol(T), tecnologico.miTaller);              // RF18 (sin conexion)
+router.get('/equipos', rol(T, G), tecnologico.listar);
+router.get('/equipos/nuevo', rol(T), tecnologico.nuevo);             // RF13
+router.get(`/equipos/${ID}`, rol(T, G), tecnologico.detalle);        // RF14 a RF16
+router.get(`/equipos/${ID}/editar`, rol(T), tecnologico.editar);
 
 // ---------- Modulo 3: gestion administrativa ----------
 
