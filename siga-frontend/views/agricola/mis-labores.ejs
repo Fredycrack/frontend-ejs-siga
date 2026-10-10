@@ -1,0 +1,31 @@
+<%- include('../partials/arriba', { titulo: 'Mis labores' }) %>
+<div class="encabezado">
+  <div>
+    <h1>Mis labores</h1>
+    <p>Registre el inicio, las fotos y la finalizacion de cada labor. Funciona aunque no tenga senal.</p>
+  </div>
+</div>
+
+<div id="caja-pendientes" class="tarjeta oculto" style="border-color:#f1d39b;background:#fffaf0">
+  <div class="pendientes-sync">
+    <div><strong><span id="num-pendientes">0</span> registro(s) guardados en este celular</strong>
+      <div class="tenue pequeno">Se envian automaticamente cuando vuelve la conexion.</div></div>
+    <button class="btn btn-primario" type="button" id="btn-sincronizar">Sincronizar ahora</button>
+  </div>
+</div>
+
+<div id="lista-labores"><p class="vacio">Cargando labores...</p></div>
+<p class="tenue pequeno centro" id="nota-datos" style="margin-top:1rem"></p>
+
+<script type="application/json" id="datos-pagina"><%- JSON.stringify({
+  generado: new Date(Date.now() - 5 * 3600 * 1000).toISOString().slice(0, 19),
+  hoy: f.hoy(),
+  labores: labores.filter(function (l) { return l.estado !== 'Cancelada'; }).map(function (l) {
+    return { id_labor: l.id_labor, tipo_labor: l.tipo_labor, descripcion: l.descripcion, ubicacion: l.ubicacion,
+      nombre_cliente: l.nombre_cliente, fecha_programada: l.fecha_programada, hora_programada: l.hora_programada,
+      estado: l.estado, evidencias: l.evidencias, porcentaje_cumplimiento: l.porcentaje_cumplimiento };
+  })
+}).replace(/</g, '\\u003c') %></script>
+
+<%- include('_dialogos') %>
+<%- include('../partials/abajo', { scripts: ['/js/cola-offline.js', '/js/campo.js'] }) %>

@@ -1,0 +1,11 @@
+<%- include('../partials/arriba', { titulo: 'Carne de ' + empleado.nombre }) %>
+<%- include('../partials/encabezado', { titulo: 'Carne con codigo QR', subtitulo: 'Imprima el carne para que el empleado registre su asistencia (RF19).', migas: [['Empleados', '/empleados']] }) %>
+<div class="tarjeta">
+  <div class="carnet">
+    <div class="cabeza">AGROSERVICES P&amp;D S.A.S.</div>
+    <img src="<%= qr.imagen %>" alt="Codigo QR <%= qr.codigo_qr %>">
+    <div class="cuerpo"><strong><%= empleado.nombre %></strong><div class="tenue"><%= empleado.rol %></div><div class="mono pequeno">C.C. <%= empleado.documento %> &middot; <%= qr.codigo_qr %></div></div>
+  </div>
+  <div class="pie-formulario no-imprimir" style="justify-content:center"><button class="btn btn-primario" type="button" data-imprimir>Imprimir</button></div>
+</div>
+<%- include('../partials/abajo') %>

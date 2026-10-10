@@ -1,0 +1,55 @@
+<%- include('../partials/arriba', { titulo: 'Mi taller' }) %>
+<div class="encabezado">
+  <div>
+    <h1>Mi taller</h1>
+    <p>Equipos asignados a usted. Puede registrar diagnosticos, repuestos y cambios de estado aunque no tenga senal (RF18).</p>
+  </div>
+  <div class="acciones"><a class="btn btn-primario" href="/equipos/nuevo">Recibir equipo</a></div>
+</div>
+
+<div id="caja-pendientes" class="tarjeta oculto" style="border-color:#f1d39b;background:#fffaf0">
+  <div class="pendientes-sync">
+    <div><strong><span id="num-pendientes">0</span> registro(s) guardados en este dispositivo</strong>
+      <div class="tenue pequeno">Se envian automaticamente cuando vuelve la conexion.</div></div>
+    <button class="btn btn-primario" type="button" id="btn-sincronizar">Sincronizar ahora</button>
+  </div>
+</div>
+
+<div id="lista-equipos"><p class="vacio">Cargando equipos...</p></div>
+<p class="tenue pequeno centro" id="nota-datos" style="margin-top:1rem"></p>
+
+<script type="application/json" id="datos-pagina"><%- JSON.stringify({
+  generado: new Date(Date.now() - 5 * 3600 * 1000).toISOString().slice(0, 19),
+  equipos: equipos.filter(function (e) { return e.estado !== 'Entregado'; }).map(function (e) {
+    return { id_equipo: e.id_equipo, codigo_seguimiento: e.codigo_seguimiento, tipo_equipo: e.tipo_equipo, marca: e.marca, modelo: e.modelo,
+      nombre_cliente: e.nombre_cliente, telefono_cliente: e.telefono_cliente, problema_reportado: e.problema_reportado, diagnostico: e.diagnostico,
+      valor_cotizacion: e.valor_cotizacion, cotizacion_aprobada: e.cotizacion_aprobada, estado: e.estado, fecha_recepcion: e.fecha_recepcion, costo_repuestos: e.costo_repuestos };
+  }),
+  repuestos: repuestos.map(function (r) { return { id_inventario: r.id_inventario, nombre_producto: r.nombre_producto, cantidad_disponible: r.cantidad_disponible, unidad: r.unidad }; })
+}).replace(/</g, '\\u003c') %></script>
+
+<dialog id="dlg-diagnostico">
+  <div class="dialogo-cabeza"><h2>Diagnostico y cotizacion</h2><button class="cerrar" type="button" data-cerrar aria-label="Cerrar">&times;</button></div>
+  <div class="dialogo-cuerpo">
+    <form id="form-diagnostico">
+      <div class="aviso error aviso-formulario oculto" role="alert"></div>
+      <div class="campo"><label class="requerido" for="t-diag">Diagnostico tecnico</label><textarea id="t-diag" name="diagnostico" maxlength="500" required></textarea></div>
+      <div class="campo" style="margin-top:.8rem"><label class="requerido" for="t-valor">Valor de la reparacion (COP)</label><input type="number" id="t-valor" name="valor_cotizacion" min="0" step="100" required></div>
+      <div class="pie-formulario"><button class="btn" type="button" data-cerrar>Cancelar</button><button class="btn btn-primario" type="submit">Guardar diagnostico</button></div>
+    </form>
+  </div>
+</dialog>
+
+<dialog id="dlg-repuesto">
+  <div class="dialogo-cabeza"><h2>Registrar repuesto</h2><button class="cerrar" type="button" data-cerrar aria-label="Cerrar">&times;</button></div>
+  <div class="dialogo-cuerpo">
+    <form id="form-repuesto">
+      <div class="aviso error aviso-formulario oculto" role="alert"></div>
+      <div class="campo"><label class="requerido" for="t-rep">Repuesto</label><select id="t-rep" name="id_inventario" required></select>
+        <small>Las existencias mostradas son las de la ultima vez que hubo conexion.</small></div>
+      <div class="campo" style="margin-top:.8rem"><label class="requerido" for="t-cant">Cantidad</label><input type="number" id="t-cant" name="cantidad" min="1" step="1" value="1" required></div>
+      <div class="pie-formulario"><button class="btn" type="button" data-cerrar>Cancelar</button><button class="btn btn-primario" type="submit">Registrar repuesto</button></div>
+    </form>
+  </div>
+</dialog>
+<%- include('../partials/abajo', { scripts: ['/js/cola-offline.js', '/js/taller.js'] }) %>

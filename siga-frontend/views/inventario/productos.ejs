@@ -1,0 +1,46 @@
+<%- include('../partials/arriba', { titulo: 'Inventario' }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Inventario',
+  subtitulo: 'Insumos agricolas, repuestos electronicos, herramientas y EPP (RF24).',
+  acciones: (es('Jefe de Inventario', 'Gerente') ? [{ texto: 'Exportar a Excel', ruta: '/api/reportes/inventario/excel', descargar: true }] : [])
+    .concat(es('Jefe de Inventario') ? [{ texto: 'Ordenes de compra', ruta: '/ordenes' }, { texto: 'Nuevo producto', ruta: '/inventario/nuevo', clase: 'btn-primario' }] : [])
+}) %>
+<% const valor = productos.reduce(function (s, p) { return s + Number(p.cantidad_disponible) * Number(p.precio_unitario); }, 0);
+   const bajos = productos.filter(function (p) { return Number(p.bajo_minimo) === 1; }).length;
+   const consume = es('Jefe de Inventario', 'Tecnico Electronico', 'Supervisor'); %>
+<div class="pestanas">
+  <% [['', 'Todos'], ['Insumo agricola', 'Insumos agricolas'], ['Repuesto electronico', 'Repuestos'], ['Herramienta', 'Herramientas'], ['EPP', 'EPP']].forEach(function (c) { %>
+    <a class="<%= (q.categoria || '') === c[0] && !q.bajo_minimo ? 'activa' : '' %>" href="/inventario<%= c[0] ? '?categoria=' + encodeURIComponent(c[0]) : '' %>"><%= c[1] %></a>
+  <% }) %>
+  <a class="<%= q.bajo_minimo ? 'activa' : '' %>" href="/inventario?bajo_minimo=1">Bajo el minimo</a>
+</div>
+<div class="indicadores">
+  <div class="indicador"><div class="nombre">Productos</div><div class="valor"><%= productos.length %></div></div>
+  <div class="indicador azul"><div class="nombre">Valor del inventario</div><div class="valor"><%= f.pesos(valor) %></div></div>
+  <a class="indicador <%= bajos ? 'rojo' : '' %>" href="/inventario?bajo_minimo=1"><div class="nombre">Bajo el stock minimo</div><div class="valor"><%= bajos %></div></a>
+</div>
+<div class="tarjeta">
+  <% if (!productos.length) { %><p class="vacio">No hay productos.</p><% } else { %>
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Producto</th><th>Categoria</th><th class="num">Disponible</th><th class="num">Minimo</th><th class="num">Precio</th><th>Ubicacion</th><th></th></tr></thead>
+    <tbody>
+    <% productos.forEach(function (p) { const datos = JSON.stringify({ producto: p.nombre_producto, disponible: f.numero(p.cantidad_disponible, 2) + ' ' + p.unidad }); %>
+      <tr class="<%= Number(p.bajo_minimo) ? 'alerta-fila' : '' %>">
+        <td><a href="/inventario/<%= p.id_inventario %>"><strong><%= p.nombre_producto %></strong></a><div class="tenue pequeno mono"><%= p.codigo_producto %></div></td>
+        <td><%= p.categoria %></td>
+        <td class="num"><%= f.numero(p.cantidad_disponible, 2) %> <span class="tenue"><%= p.unidad %></span><% if (Number(p.bajo_minimo)) { %><div><span class="etiqueta rojo">Bajo minimo</span></div><% } %></td>
+        <td class="num"><%= f.numero(p.cantidad_minima, 2) %></td>
+        <td class="num"><%= f.pesos(p.precio_unitario) %></td>
+        <td><%= p.ubicacion_almacen || '—' %><% if (p.estado !== 'Activo') { %> <span class="etiqueta rojo">Inactivo</span><% } %></td>
+        <td class="celda-acciones">
+          <% if (es('Jefe de Inventario')) { %><button class="btn btn-sm" data-abrir="dlg-movimiento" data-api="/api/inventario/<%= p.id_inventario %>/ingreso" data-valores='<%= JSON.stringify(Object.assign(JSON.parse(datos), { titulo: "Registrar ingreso" })) %>'>Ingreso</button><% } %>
+          <% if (consume) { %><button class="btn btn-sm" data-abrir="dlg-movimiento" data-api="/api/inventario/<%= p.id_inventario %>/consumo" data-valores='<%= JSON.stringify(Object.assign(JSON.parse(datos), { titulo: "Registrar consumo" })) %>'>Consumo</button><% } %>
+        </td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table></div>
+  <% } %>
+</div>
+<%- include('_movimiento') %>
+<%- include('../partials/abajo') %>

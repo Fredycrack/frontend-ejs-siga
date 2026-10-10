@@ -1,0 +1,44 @@
+<% const k = contrato; const propias = facturas.filter(function (x) { return x.id_contrato === k.id_contrato; }); %>
+<%- include('../partials/arriba', { titulo: 'Contrato ' + k.numero_contrato }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Contrato ' + k.numero_contrato, subtitulo: k.nombre_cliente, migas: [['Contratos', '/contratos']],
+  acciones: es() ? [{ texto: 'Editar', ruta: '/contratos/' + k.id_contrato + '/editar' }].concat(k.estado === 'Vigente' ? [{ texto: 'Facturar labores', ruta: '/facturas/desde-labores?id_contrato=' + k.id_contrato, clase: 'btn-primario' }] : []) : []
+}) %>
+<div class="rejilla rejilla-2-1">
+  <div class="tarjeta">
+    <div class="tarjeta-cabeza"><h2>Datos del contrato</h2><%- include('../partials/estado', { valor: k.estado }) %></div>
+    <dl class="ficha">
+      <dt>Cliente</dt><dd><%= k.nombre_cliente %></dd>
+      <dt>Tipo</dt><dd><%= k.tipo_contrato %></dd>
+      <dt>Vigencia</dt><dd><%= f.fecha(k.fecha_inicio) %> a <%= f.fecha(k.fecha_fin) %></dd>
+      <dt>Valor total</dt><dd><%= f.pesos(k.valor_total) %></dd>
+      <dt>Objeto</dt><dd><%= k.descripcion || '—' %></dd>
+    </dl>
+    <% if (es() && k.estado !== 'Vigente') { %>
+      <div class="pie-formulario"><button class="btn btn-peligro" data-accion="/api/contratos/<%= k.id_contrato %>" data-metodo="DELETE" data-confirmar="Se eliminara el contrato. Si tiene labores o facturas no se podra eliminar." data-volver="/contratos">Eliminar</button></div>
+    <% } %>
+  </div>
+  <div class="tarjeta">
+    <h2>Ejecucion</h2>
+    <% const fin = labores.filter(function (l) { return l.estado === 'Finalizada'; }).length;
+       const facturado = propias.filter(function (x) { return x.estado !== 'Anulada'; }).reduce(function (s, x) { return s + Number(x.total); }, 0); %>
+    <dl class="ficha">
+      <dt>Labores</dt><dd><%= labores.length %> (<%= fin %> finalizadas)</dd>
+      <% if (es('Gerente')) { %>
+        <dt>Facturado</dt><dd><%= f.pesos(facturado) %></dd>
+        <dt>Por facturar del valor</dt><dd><%= f.pesos(Math.max(0, Number(k.valor_total) - facturado)) %></dd>
+      <% } %>
+    </dl>
+  </div>
+</div>
+<div class="tarjeta">
+  <div class="tarjeta-cabeza"><h2>Labores del contrato</h2><% if (es('Supervisor') && k.estado === 'Vigente') { %><a class="btn btn-sm" href="/labores/nueva">Programar labor</a><% } %></div>
+  <%- include('../agricola/_tabla', { labores: labores }) %>
+</div>
+<% if (es('Gerente')) { %>
+<div class="tarjeta">
+  <h2>Facturas</h2>
+  <%- include('../facturacion/_tabla', { facturas: propias }) %>
+</div>
+<% } %>
+<%- include('../partials/abajo') %>

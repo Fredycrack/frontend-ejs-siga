@@ -1,0 +1,32 @@
+<%- include('../partials/arriba', { titulo: 'Facturas' }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Facturas',
+  subtitulo: 'RF33 a RF35: facturacion de servicios, envio y control de pagos.',
+  acciones: es() ? [{ texto: 'Facturar labores de un contrato', ruta: '/facturas/desde-labores' }, { texto: 'Nueva factura', ruta: '/facturas/nueva', clase: 'btn-primario' }] : []
+}) %>
+<% const activas = facturas.filter(function (x) { return x.estado !== 'Anulada'; });
+   const total = activas.reduce(function (s, x) { return s + Number(x.total); }, 0);
+   const saldo = activas.reduce(function (s, x) { return s + Number(x.saldo); }, 0); %>
+<div class="pestanas">
+  <% [['', 'Todas'], ['Pendiente', 'Pendientes'], ['Pagada parcialmente', 'Con abonos'], ['Pagada', 'Pagadas'], ['Anulada', 'Anuladas']].forEach(function (p) { %>
+    <a class="<%= (q.estado || '') === p[0] ? 'activa' : '' %>" href="/facturas<%= p[0] ? '?estado=' + encodeURIComponent(p[0]) : '' %>"><%= p[1] %></a>
+  <% }) %>
+</div>
+<div class="indicadores">
+  <div class="indicador"><div class="nombre">Facturas</div><div class="valor"><%= facturas.length %></div></div>
+  <div class="indicador azul"><div class="nombre">Valor facturado</div><div class="valor"><%= f.pesos(total) %></div></div>
+  <div class="indicador ambar"><div class="nombre">Saldo por cobrar</div><div class="valor"><%= f.pesos(saldo) %></div></div>
+</div>
+<div class="tarjeta">
+  <form class="filtros" method="GET">
+    <% if (q.estado) { %><input type="hidden" name="estado" value="<%= q.estado %>"><% } %>
+    <div class="campo"><label for="f-cli">Cliente</label>
+      <select id="f-cli" name="id_cliente"><option value="">Todos</option>
+        <% clientes.forEach(function (c) { %><option value="<%= c.id_cliente %>" <%= String(q.id_cliente) === String(c.id_cliente) ? 'selected' : '' %>><%= c.nombre_cliente %></option><% }) %></select></div>
+    <div class="campo"><label for="f-desde">Emitidas desde</label><input type="date" id="f-desde" name="desde" value="<%= q.desde || '' %>"></div>
+    <div class="campo"><label for="f-hasta">Hasta</label><input type="date" id="f-hasta" name="hasta" value="<%= q.hasta || '' %>"></div>
+    <button class="btn" type="submit">Filtrar</button>
+  </form>
+  <%- include('_tabla', { facturas: facturas }) %>
+</div>
+<%- include('../partials/abajo') %>

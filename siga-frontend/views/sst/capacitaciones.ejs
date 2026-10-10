@@ -1,0 +1,29 @@
+<%- include('../partials/arriba', { titulo: 'Capacitaciones SST' }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Capacitaciones de seguridad',
+  subtitulo: 'RF29: programacion, convocatoria y registro de asistencia.',
+  acciones: es('Responsable SST') ? [{ texto: 'Programar capacitacion', ruta: '/capacitaciones/nueva', clase: 'btn-primario' }] : []
+}) %>
+<div class="pestanas">
+  <% [['', 'Todas'], ['Programada', 'Programadas'], ['Realizada', 'Realizadas'], ['Cancelada', 'Canceladas']].forEach(function (p) { %>
+    <a class="<%= (q.estado || '') === p[0] ? 'activa' : '' %>" href="/capacitaciones<%= p[0] ? '?estado=' + p[0] : '' %>"><%= p[1] %></a>
+  <% }) %>
+</div>
+<div class="tarjeta">
+  <% if (!capacitaciones.length) { %><p class="vacio">No hay capacitaciones.</p><% } else { %>
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Tema</th><th>Fecha</th><th>Lugar e instructor</th><th class="num">Convocados</th><th class="num">Asistentes</th><th>Estado</th></tr></thead>
+    <tbody><% capacitaciones.forEach(function (c) { %>
+      <tr>
+        <td><a href="/capacitaciones/<%= c.id_capacitacion %>"><strong><%= c.tema %></strong></a></td>
+        <td class="nowrap"><%= f.fecha(c.fecha_capacitacion) %><div class="tenue pequeno"><%= f.hora(c.hora_inicio) %> a <%= f.hora(c.hora_fin) %></div></td>
+        <td><%= c.ubicacion || '—' %><div class="tenue pequeno"><%= c.instructor || '' %></div></td>
+        <td class="num"><%= c.convocados %></td>
+        <td class="num"><%= c.asistentes %><% if (c.convocados) { %><div class="tenue pequeno"><%= Math.round(c.asistentes * 100 / c.convocados) %> %</div><% } %></td>
+        <td><%- include('../partials/estado', { valor: c.estado }) %></td>
+      </tr>
+    <% }) %></tbody>
+  </table></div>
+  <% } %>
+</div>
+<%- include('../partials/abajo') %>

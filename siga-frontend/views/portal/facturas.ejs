@@ -1,0 +1,4 @@
+<%- include('../partials/arriba', { titulo: 'Mis facturas' }) %>
+<%- include('../partials/encabezado', { titulo: 'Mis facturas', subtitulo: 'RF36: consulte y descargue sus facturas.' }) %>
+<div class="tarjeta"><%- include('../facturacion/_tabla', { facturas: facturas, portal: true }) %></div>
+<%- include('../partials/abajo') %>

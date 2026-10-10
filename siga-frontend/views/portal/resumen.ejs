@@ -1,0 +1,31 @@
+<%- include('../partials/arriba', { titulo: 'Portal de clientes' }) %>
+<% const r = resumen; %>
+<div class="encabezado">
+  <div><h1>Bienvenido, <%= usuario.nombre %></h1><p>Consulte sus servicios con AGROSERVICES P&amp;D S.A.S.</p></div>
+  <div class="acciones"><a class="btn btn-primario" href="/portal/solicitudes">Solicitar un servicio</a></div>
+</div>
+<div class="indicadores">
+  <a class="indicador <%= r.facturas.vencido > 0 ? 'rojo' : 'ambar' %>" href="/portal/facturas"><div class="nombre">Saldo pendiente</div><div class="valor"><%= f.pesos(r.facturas.saldo) %></div><div class="nota"><%= r.facturas.pendientes %> factura(s)<%= r.facturas.vencido > 0 ? ', vencido ' + f.pesos(r.facturas.vencido) : '' %></div></a>
+  <a class="indicador" href="/portal/labores"><div class="nombre">Labores programadas</div><div class="valor"><%= r.labores.programadas %></div></a>
+  <a class="indicador azul" href="/portal/equipos"><div class="nombre">Equipos en el taller</div><div class="valor"><%= r.equipos.en_taller %></div></a>
+  <a class="indicador" href="/portal/solicitudes"><div class="nombre">Solicitudes pendientes</div><div class="valor"><%= r.solicitudes.pendientes %></div></a>
+</div>
+<% const porAprobar = equipos.filter(function (e) { return e.valor_cotizacion !== null && !e.cotizacion_aprobada; }); if (porAprobar.length) { %>
+  <div class="aviso advertencia"><%= porAprobar.length %> equipo(s) tienen una cotizacion esperando su aprobacion. <a href="/portal/equipos">Revisar</a></div>
+<% } %>
+<div>
+  <div class="tarjeta">
+    <div class="tarjeta-cabeza"><h2>Facturas recientes</h2><a class="btn btn-sm" href="/portal/facturas">Ver todas</a></div>
+    <%- include('../facturacion/_tabla', { facturas: facturas.slice(0, 5), portal: true }) %>
+  </div>
+  <div class="tarjeta">
+    <div class="tarjeta-cabeza"><h2>Mis solicitudes</h2><a class="btn btn-sm" href="/portal/solicitudes">Nueva</a></div>
+    <% if (!solicitudes.length) { %><p class="vacio">Aun no ha enviado solicitudes.</p><% } else { %>
+    <div class="tabla-contenedor"><table>
+      <thead><tr><th>Servicio</th><th>Fecha deseada</th><th>Estado</th></tr></thead>
+      <tbody><% solicitudes.slice(0, 5).forEach(function (s) { %><tr><td><%= s.nombre_servicio %></td><td><%= f.fecha(s.fecha_deseada) %></td><td><%- include('../partials/estado', { valor: s.estado }) %></td></tr><% }) %></tbody>
+    </table></div>
+    <% } %>
+  </div>
+</div>
+<%- include('../partials/abajo') %>

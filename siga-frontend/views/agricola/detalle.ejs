@@ -1,0 +1,79 @@
+<% const l = labor; const propia = usuario.id === l.id_empleado; const opera = es('Supervisor') || (usuario.rol === 'Trabajador de Campo' && propia); %>
+<%- include('../partials/arriba', { titulo: l.tipo_labor }) %>
+<%- include('../partials/encabezado', {
+  titulo: l.tipo_labor,
+  subtitulo: l.nombre_cliente + ' - ' + l.numero_contrato,
+  migas: usuario.rol === 'Trabajador de Campo' ? [['Mis labores', '/mis-labores']] : [['Labores', '/labores']]
+}) %>
+<div class="rejilla rejilla-2-1">
+  <div>
+    <div class="tarjeta">
+      <div class="tarjeta-cabeza">
+        <h2>Datos de la labor</h2>
+        <%- include('../partials/estado', { valor: l.estado }) %>
+      </div>
+      <dl class="ficha">
+        <dt>Servicio</dt><dd><%= l.nombre_servicio %></dd>
+        <dt>Trabajador</dt><dd><%= l.empleado %></dd>
+        <dt>Programada para</dt><dd><%= f.fecha(l.fecha_programada) %>, <%= f.hora(l.hora_programada) %></dd>
+        <dt>Ubicacion</dt><dd><%= l.ubicacion %>
+          <% if (l.latitud !== null) { %><br><a class="pequeno" target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat=<%= l.latitud %>&mlon=<%= l.longitud %>#map=17/<%= l.latitud %>/<%= l.longitud %>">Ver en el mapa (<%= l.latitud %>, <%= l.longitud %>)</a><% } %></dd>
+        <dt>Cantidad</dt><dd><%= f.numero(l.cantidad, 2) %> <%= (l.unidad_medida || '').toLowerCase() %></dd>
+        <% if (l.descripcion) { %><dt>Instrucciones</dt><dd><%= l.descripcion %></dd><% } %>
+        <% if (l.resultado) { %><dt>Resultado</dt><dd><%= l.resultado %></dd><% } %>
+        <% if (l.porcentaje_cumplimiento !== null) { %><dt>Cumplimiento</dt><dd><%= l.porcentaje_cumplimiento %> %</dd><% } %>
+        <% if (l.id_factura) { %><dt>Facturacion</dt><dd>Incluida en una factura</dd><% } %>
+      </dl>
+      <div class="pie-formulario no-imprimir">
+        <% if (es('Supervisor') && l.estado === 'Programada') { %>
+          <button class="btn btn-peligro" data-accion="/api/labores/<%= l.id_labor %>" data-metodo="DELETE" data-confirmar="Se eliminara la labor programada. Esta accion no se puede deshacer." data-volver="/labores">Eliminar</button>
+          <a class="btn" href="/labores/<%= l.id_labor %>/editar">Editar</a>
+        <% } %>
+        <% if (es('Supervisor') && (l.estado === 'Programada' || l.estado === 'En proceso')) { %>
+          <button class="btn btn-peligro" data-accion="/api/labores/<%= l.id_labor %>" data-metodo="PUT" data-cuerpo='{"estado":"Cancelada"}' data-confirmar="La labor quedara cancelada y no podra registrarse su avance.">Cancelar labor</button>
+        <% } %>
+        <% if (opera && l.estado === 'Programada') { %>
+          <button class="btn btn-primario" data-operar="iniciar" data-labor="<%= l.id_labor %>">Registrar inicio</button>
+        <% } %>
+        <% if (opera && l.estado === 'En proceso') { %>
+          <button class="btn" data-operar="evidencia" data-labor="<%= l.id_labor %>">Agregar evidencia</button>
+          <button class="btn btn-primario" data-operar="finalizar" data-labor="<%= l.id_labor %>">Registrar finalizacion</button>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="tarjeta">
+      <h2>Evidencias fotograficas (<%= evidencias.length %>)</h2>
+      <% if (!evidencias.length) { %>
+        <p class="vacio">Aun no hay evidencias. Se registran mientras la labor esta en proceso.</p>
+      <% } else { %>
+        <div class="galeria">
+          <% evidencias.forEach(function (e) { %>
+            <figure>
+              <img src="<%= e.imagen %>" alt="<%= e.comentario || 'Evidencia de la labor' %>" data-ampliar loading="lazy">
+              <figcaption><%= f.fechaHora(e.fecha_captura) %><% if (e.comentario) { %><br><%= e.comentario %><% } %></figcaption>
+            </figure>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="tarjeta">
+    <h2>Seguimiento</h2>
+    <ul class="linea-tiempo">
+      <li class="hecho"><strong>Programada</strong><div class="tenue pequeno">Registrada el <%= f.fechaHora(l.fecha_creacion) %></div></li>
+      <li class="<%= l.hora_inicio ? 'hecho' : (l.estado === 'Programada' ? 'actual' : '') %>"><strong>Inicio en campo</strong>
+        <div class="tenue pequeno"><%= l.hora_inicio ? f.fechaHora(l.hora_inicio) : 'Pendiente' %>
+          <% if (l.lat_inicio !== null) { %><br>GPS: <%= l.lat_inicio %>, <%= l.lon_inicio %><% } else if (l.hora_inicio) { %><br>Sin ubicacion GPS<% } %></div></li>
+      <li class="<%= l.evidencias ? 'hecho' : (l.estado === 'En proceso' ? 'actual' : '') %>"><strong>Evidencias</strong><div class="tenue pequeno"><%= l.evidencias %> foto(s)</div></li>
+      <li class="<%= l.hora_fin ? 'hecho' : '' %>"><strong>Finalizacion</strong>
+        <div class="tenue pequeno"><%= l.hora_fin ? f.fechaHora(l.hora_fin) : 'Pendiente' %>
+          <% if (l.lat_fin !== null) { %><br>GPS: <%= l.lat_fin %>, <%= l.lon_fin %><% } %></div></li>
+    </ul>
+    <% if (l.registrada_offline) { %><div class="aviso info">Parte de este registro se hizo sin conexion y se sincronizo despues.</div><% } %>
+    <% if (l.estado === 'Cancelada') { %><div class="aviso error">La labor fue cancelada.</div><% } %>
+  </div>
+</div>
+<%- include('_dialogos') %>
+<%- include('../partials/abajo', { scripts: opera ? ['/js/cola-offline.js', '/js/campo.js'] : [] }) %>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seguimiento de equipos | SIGA - AGROSERVICES</title>
+  <link rel="stylesheet" href="/css/siga.css"><link rel="icon" href="/img/logo.svg">
+</head>
+<body>
+<main class="publica">
+  <a class="marca" href="/"><img src="/img/logo.svg" alt=""><div><strong>SIGA</strong><span>AGROSERVICES P&amp;D S.A.S.</span></div></a>
+  <div class="tarjeta" style="margin-top:1.5rem">
+    <h1>Estado de su equipo</h1>
+    <p class="tenue">Escriba el codigo de seguimiento que aparece en el comprobante de recepcion.</p>
+    <form method="GET" action="/seguimiento" class="filtros" style="margin-top:1rem">
+      <div class="campo" style="flex:1"><label for="codigo">Codigo de seguimiento</label>
+        <input id="codigo" name="codigo" class="mono" maxlength="12" value="<%= codigo %>" placeholder="Ej.: RX7K2M9P" required autocomplete="off" style="text-transform:uppercase;letter-spacing:.1em"></div>
+      <button class="btn btn-primario" type="submit">Consultar</button>
+    </form>
+    <% if (error) { %><div class="aviso error"><%= error %></div><% } %>
+  </div>
+  <% if (equipo) {
+       const ESTADOS = ['Recibido', 'En diagnostico', 'En proceso', 'Completado', 'Entregado'];
+       const i = ESTADOS.indexOf(equipo.estado);
+       const EXPLICACION = { Recibido: 'Recibimos su equipo y esta en cola para revision.', 'En diagnostico': 'Un tecnico esta revisando el equipo.', 'En proceso': 'La reparacion esta en curso.', Completado: 'Su equipo esta reparado y listo para recoger.', Entregado: 'El equipo ya fue entregado.' }; %>
+    <div class="tarjeta">
+      <div class="tarjeta-cabeza"><h2><%= equipo.tipo_equipo %> <%= [equipo.marca, equipo.modelo].filter(Boolean).join(' ') %></h2><%- include('../partials/estado', { valor: equipo.estado }) %></div>
+      <p style="margin-bottom:1rem"><%= EXPLICACION[equipo.estado] %></p>
+      <ul class="linea-tiempo">
+        <% ESTADOS.forEach(function (s, k) { %><li class="<%= k < i ? 'hecho' : (k === i ? 'actual' : '') %>"><%= s %></li><% }) %>
+      </ul>
+      <dl class="ficha">
+        <dt>Recibido</dt><dd><%= f.fechaHora(equipo.fecha_recepcion) %></dd>
+        <% if (equipo.diagnostico) { %><dt>Diagnostico</dt><dd><%= equipo.diagnostico %></dd><% } %>
+        <% if (equipo.valor_cotizacion !== null) { %><dt>Cotizacion</dt><dd><%= f.pesos(equipo.valor_cotizacion) %> (<%= equipo.cotizacion_aprobada ? 'aprobada' : 'pendiente de su aprobacion' %>)</dd><% } %>
+        <% if (equipo.fecha_entrega) { %><dt>Entregado</dt><dd><%= f.fechaHora(equipo.fecha_entrega) %></dd><% } %>
+      </dl>
+      <% if (equipo.valor_cotizacion !== null && !equipo.cotizacion_aprobada) { %>
+        <div class="aviso info" style="margin-top:1rem">Para aprobar la cotizacion ingrese al <a href="/portal/login">portal de clientes</a> o comuniquese con AGROSERVICES.</div>
+      <% } %>
+    </div>
+  <% } %>
+  <p class="centro pequeno"><a href="/">Ingreso de empleados</a> &middot; <a href="/portal/login">Portal de clientes</a></p>
+</main>
+</body>
+</html>

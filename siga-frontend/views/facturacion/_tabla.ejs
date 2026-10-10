@@ -1,0 +1,20 @@
+<% if (!facturas.length) { %>
+  <p class="vacio">No hay facturas.</p>
+<% } else { %>
+<div class="tabla-contenedor"><table>
+  <thead><tr><th>Factura</th><th>Cliente</th><th>Emision</th><th>Vence</th><th class="num">Total</th><th class="num">Saldo</th><th>Estado</th></tr></thead>
+  <tbody>
+  <% facturas.forEach(function (x) { %>
+    <tr class="<%= x.vencida && Number(x.saldo) > 0 ? 'alerta-fila' : '' %>">
+      <td><a class="mono" href="<%= typeof portal !== 'undefined' && portal ? '/portal/facturas/' : '/facturas/' %><%= x.id_factura %>"><strong><%= x.numero_factura %></strong></a><div class="tenue pequeno"><%= x.numero_contrato || 'Sin contrato' %></div></td>
+      <td><%= x.nombre_cliente %></td>
+      <td class="nowrap"><%= f.fecha(x.fecha_emision) %></td>
+      <td class="nowrap"><%= f.fecha(x.fecha_vencimiento) %><% if (x.vencida && Number(x.saldo) > 0) { %><div><span class="etiqueta rojo">Vencida</span></div><% } %></td>
+      <td class="num"><%= f.pesos(x.total) %></td>
+      <td class="num"><%= f.pesos(x.saldo) %></td>
+      <td><%- include('../partials/estado', { valor: x.estado }) %></td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table></div>
+<% } %>

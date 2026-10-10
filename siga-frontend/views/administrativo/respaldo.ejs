@@ -1,0 +1,10 @@
+<%- include('../partials/arriba', { titulo: 'Respaldo de datos' }) %>
+<%- include('../partials/encabezado', { titulo: 'Respaldo de datos', subtitulo: 'RF05: copia de seguridad manual de la informacion del sistema.' }) %>
+<div class="tarjeta" style="max-width:760px">
+  <p>El respaldo descarga un archivo JSON con el contenido completo de las 23 tablas del sistema, incluidas las contrasenas cifradas con bcrypt y las fotografias de evidencia, junto con la fecha y la hora de generacion. La descarga queda registrada en la auditoria.</p>
+  <p class="tenue">Guarde el archivo en un lugar seguro y con acceso restringido: contiene datos personales de empleados y clientes protegidos por la Ley 1581 de 2012.</p>
+  <div class="pie-formulario" style="justify-content:flex-start">
+    <a class="btn btn-primario" href="/api/respaldo" download="respaldo-siga-<%= f.hoy() %>.json">Descargar respaldo</a>
+  </div>
+</div>
+<%- include('../partials/abajo') %>

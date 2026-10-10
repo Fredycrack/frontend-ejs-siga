@@ -1,0 +1,78 @@
+<% const x = factura; const admin = es(); const pagado = Number(x.total) - Number(x.saldo); %>
+<%- include('../partials/arriba', { titulo: 'Factura ' + x.numero_factura }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Factura ' + x.numero_factura, subtitulo: x.nombre_cliente, migas: [['Facturas', '/facturas']],
+  acciones: [{ texto: 'Descargar PDF', ruta: '/api/facturas/' + x.id_factura + '/pdf', descargar: true }]
+}) %>
+<% if (x.vencida && Number(x.saldo) > 0) { %><div class="aviso error">La factura esta vencida desde el <%= f.fecha(x.fecha_vencimiento) %> con un saldo de <%= f.pesos(x.saldo) %>.</div><% } %>
+<div class="rejilla rejilla-2-1">
+  <div>
+    <div class="tarjeta">
+      <div class="tarjeta-cabeza"><h2>Detalle</h2><%- include('../partials/estado', { valor: x.estado }) %></div>
+      <div class="tabla-contenedor"><table>
+        <thead><tr><th>Descripcion</th><th class="num">Cantidad</th><th class="num">Valor unitario</th><th class="num">Subtotal</th></tr></thead>
+        <tbody><% x.detalles.forEach(function (d) { %>
+          <tr><td><%= d.descripcion %><% if (d.nombre_servicio) { %><div class="tenue pequeno"><%= d.nombre_servicio %></div><% } %></td><td class="num"><%= f.numero(d.cantidad, 2) %></td><td class="num"><%= f.pesos(d.valor_unitario) %></td><td class="num"><%= f.pesos(d.subtotal) %></td></tr>
+        <% }) %></tbody>
+        <tfoot>
+          <tr><td colspan="3" class="derecha">Subtotal</td><td class="num"><%= f.pesos(x.subtotal) %></td></tr>
+          <tr><td colspan="3" class="derecha">IVA <%= f.numero(x.porcentaje_iva, 2) %> %</td><td class="num"><%= f.pesos(x.impuesto_iva) %></td></tr>
+          <tr><td colspan="3" class="derecha">Total</td><td class="num"><%= f.pesos(x.total) %></td></tr>
+        </tfoot>
+      </table></div>
+      <% if (x.observaciones) { %><p class="tenue pequeno" style="margin-top:.8rem"><%= x.observaciones %></p><% } %>
+    </div>
+    <div class="tarjeta">
+      <div class="tarjeta-cabeza"><h2>Pagos recibidos</h2>
+        <% if (admin && Number(x.saldo) > 0 && x.estado !== 'Anulada') { %><button class="btn btn-primario btn-sm" data-abrir="dlg-pago" data-valores='<%= JSON.stringify({ valor: x.saldo, fecha_pago: f.hoy() }) %>'>Registrar pago</button><% } %>
+      </div>
+      <% if (!x.pagos.length) { %><p class="tenue">No hay pagos registrados.</p><% } else { %>
+      <div class="tabla-contenedor"><table>
+        <thead><tr><th>Fecha</th><th>Medio</th><th>Referencia</th><th>Registro</th><th class="num">Valor</th></tr></thead>
+        <tbody><% x.pagos.forEach(function (p) { %>
+          <tr><td class="nowrap"><%= f.fecha(p.fecha_pago) %></td><td><%= p.medio_pago %></td><td><%= p.referencia || '—' %></td><td><%= p.registrado_por || '—' %></td><td class="num"><%= f.pesos(p.valor) %></td></tr>
+        <% }) %></tbody>
+      </table></div>
+      <% } %>
+    </div>
+  </div>
+  <div>
+    <div class="tarjeta">
+      <h2>Resumen</h2>
+      <dl class="ficha">
+        <dt>Cliente</dt><dd><%= x.nombre_cliente %><div class="tenue pequeno">NIT/CC <%= x.documento %></div></dd>
+        <dt>Contrato</dt><dd><%= x.numero_contrato || '—' %></dd>
+        <dt>Emision</dt><dd><%= f.fecha(x.fecha_emision) %></dd>
+        <dt>Vencimiento</dt><dd><%= f.fecha(x.fecha_vencimiento) %> (<%= x.forma_pago %>)</dd>
+        <dt>Total</dt><dd><%= f.pesos(x.total) %></dd>
+        <dt>Pagado</dt><dd><%= f.pesos(pagado) %></dd>
+        <dt>Saldo</dt><dd><strong><%= f.pesos(x.saldo) %></strong></dd>
+        <dt>Envio por correo</dt><dd><%= x.enviada ? 'Enviada el ' + f.fechaHora(x.fecha_envio) : 'No enviada' %></dd>
+      </dl>
+      <div class="progreso" style="margin-top:1rem"><span style="width:<%= Number(x.total) ? Math.round(pagado * 100 / Number(x.total)) : 0 %>%"></span></div>
+      <% if (admin && x.estado !== 'Anulada') { %>
+        <div class="pie-formulario">
+          <% if (pagado === 0) { %><button class="btn btn-peligro" data-accion="/api/facturas/<%= x.id_factura %>/anular" data-metodo="PUT" data-confirmar="La factura <%= x.numero_factura %> quedara anulada y sus labores podran facturarse de nuevo.">Anular</button><% } %>
+          <button class="btn" data-accion="/api/facturas/<%= x.id_factura %>/enviar" data-confirmar="Se enviara la factura en PDF a <%= x.email %>."><%= x.enviada ? 'Reenviar por correo' : 'Enviar por correo' %></button>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+<dialog id="dlg-pago">
+  <div class="dialogo-cabeza"><h2>Registrar pago</h2><button class="cerrar" type="button" data-cerrar>&times;</button></div>
+  <div class="dialogo-cuerpo">
+    <form data-api="/api/facturas/<%= x.id_factura %>/pagos" data-metodo="POST">
+      <div class="aviso error aviso-formulario oculto" role="alert"></div>
+      <p style="margin-bottom:.8rem">Saldo actual: <strong><%= f.pesos(x.saldo) %></strong>. Puede registrar un abono parcial.</p>
+      <div class="campos">
+        <div class="campo"><label class="requerido" for="p-valor">Valor recibido</label><input type="number" id="p-valor" name="valor" min="1" max="<%= x.saldo %>" step="0.01" required></div>
+        <div class="campo"><label class="requerido" for="p-fecha">Fecha del pago</label><input type="date" id="p-fecha" name="fecha_pago" required max="<%= f.hoy() %>"></div>
+        <div class="campo"><label for="p-medio">Medio de pago</label><select id="p-medio" name="medio_pago"><option>Transferencia</option><option>Consignacion</option><option>Efectivo</option><option>Cheque</option></select></div>
+        <div class="campo"><label for="p-ref">Referencia</label><input id="p-ref" name="referencia" maxlength="60" placeholder="Numero de la transferencia"></div>
+      </div>
+      <div class="pie-formulario"><button class="btn" type="button" data-cerrar>Cancelar</button><button class="btn btn-primario" type="submit">Registrar pago</button></div>
+    </form>
+  </div>
+</dialog>
+<%- include('../partials/abajo') %>

@@ -1,0 +1,37 @@
+<% const editando = !!equipo.id_equipo; const titulo = editando ? 'Editar equipo ' + equipo.codigo_seguimiento : 'Recibir equipo'; %>
+<%- include('../partials/arriba', { titulo: titulo }) %>
+<%- include('../partials/encabezado', {
+  titulo: titulo,
+  subtitulo: editando ? equipo.nombre_cliente : 'RF13: registre el equipo y entregue al cliente el codigo de seguimiento.',
+  migas: [['Equipos', '/equipos']]
+}) %>
+<form class="tarjeta" data-api="/api/equipos<%= editando ? '/' + equipo.id_equipo : '' %>" data-metodo="<%= editando ? 'PUT' : 'POST' %>" data-volver="/equipos/<%= editando ? equipo.id_equipo : '{id}' %>">
+  <div class="aviso error aviso-formulario oculto" role="alert"></div>
+  <div class="campos">
+    <div class="campo ancho">
+      <label class="requerido" for="id_cliente">Cliente</label>
+      <select id="id_cliente" name="id_cliente" required>
+        <option value="">Seleccione...</option>
+        <% clientes.forEach(function (c) { %><option value="<%= c.id_cliente %>" <%= equipo.id_cliente == c.id_cliente ? 'selected' : '' %>><%= c.nombre_cliente %> (<%= c.documento %>)</option><% }) %>
+      </select>
+      <% if (es()) { %><small>Si el cliente no existe, registrelo primero en <a href="/clientes/nuevo">Clientes</a>.</small><% } %>
+    </div>
+    <div class="campo">
+      <label class="requerido" for="tipo_equipo">Tipo de equipo</label>
+      <input id="tipo_equipo" name="tipo_equipo" list="tipos" maxlength="60" required value="<%= equipo.tipo_equipo || '' %>">
+      <datalist id="tipos"><option>Portatil</option><option>Computador de escritorio</option><option>Impresora termica</option><option>Impresora</option><option>Tablet</option><option>Celular</option><option>Bascula electronica</option><option>Lector de codigo de barras</option></datalist>
+    </div>
+    <div class="campo"><label for="marca">Marca</label><input id="marca" name="marca" maxlength="60" value="<%= equipo.marca || '' %>"></div>
+    <div class="campo"><label for="modelo">Modelo</label><input id="modelo" name="modelo" maxlength="60" value="<%= equipo.modelo || '' %>"></div>
+    <div class="campo"><label for="serial">Serial</label><input id="serial" name="serial" maxlength="60" value="<%= equipo.serial || '' %>"></div>
+    <div class="campo ancho">
+      <label class="requerido" for="problema_reportado">Problema reportado por el cliente</label>
+      <textarea id="problema_reportado" name="problema_reportado" maxlength="500" required><%= equipo.problema_reportado || '' %></textarea>
+    </div>
+  </div>
+  <div class="pie-formulario">
+    <a class="btn" href="<%= editando ? '/equipos/' + equipo.id_equipo : '/equipos' %>">Cancelar</a>
+    <button class="btn btn-primario" type="submit"><%= editando ? 'Guardar cambios' : 'Registrar y generar codigo' %></button>
+  </div>
+</form>
+<%- include('../partials/abajo') %>

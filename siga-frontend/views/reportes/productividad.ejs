@@ -1,0 +1,28 @@
+<% const d = reporte; const r = 'desde=' + d.desde + '&hasta=' + d.hasta; %>
+<%- include('../partials/arriba', { titulo: 'Productividad' }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Productividad del personal', subtitulo: 'RF40: del ' + f.fecha(d.desde) + ' al ' + f.fecha(d.hasta) + '.',
+  acciones: [{ texto: 'PDF', ruta: '/api/reportes/productividad/pdf?' + r, descargar: true }, { texto: 'Excel', ruta: '/api/reportes/productividad/excel?' + r, descargar: true }]
+}) %>
+<form class="filtros" method="GET">
+  <div class="campo"><label for="rol">Rol</label><select id="rol" name="rol"><option value="">Todos</option>
+    <% ['Trabajador de Campo', 'Supervisor', 'Tecnico Electronico', 'Jefe de Inventario', 'Responsable SST'].forEach(function (x) { %><option <%= q.rol === x ? 'selected' : '' %>><%= x %></option><% }) %></select></div>
+  <div class="campo"><label for="desde">Desde</label><input type="date" id="desde" name="desde" value="<%= d.desde %>"></div>
+  <div class="campo"><label for="hasta">Hasta</label><input type="date" id="hasta" name="hasta" value="<%= d.hasta %>"></div>
+  <button class="btn" type="submit">Consultar</button>
+</form>
+<div class="tarjeta">
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Empleado</th><th class="num">Labores</th><th style="width:16%">Cumplimiento</th><th class="num">Horas en labor</th><th class="num">Tareas</th><th class="num">Vencidas</th><th class="num">Dias asistidos</th></tr></thead>
+    <tbody><% d.filas.forEach(function (x) { %>
+      <tr><td><strong><%= x.nombre %></strong><div class="tenue pequeno"><%= x.rol %></div></td>
+        <td class="num"><%= x.labores_finalizadas %> / <%= x.labores_asignadas %></td>
+        <td><% if (x.cumplimiento_promedio === null) { %><span class="tenue">—</span><% } else { %><div class="progreso"><span style="width:<%= x.cumplimiento_promedio %>%"></span></div><div class="tenue pequeno"><%= f.numero(x.cumplimiento_promedio, 1) %> %</div><% } %></td>
+        <td class="num"><%= f.numero(x.horas_labor, 1) %></td>
+        <td class="num"><%= x.tareas_completadas %> / <%= x.tareas_asignadas %></td>
+        <td class="num"><%= x.tareas_vencidas %></td>
+        <td class="num"><%= x.dias_asistidos %></td></tr>
+    <% }) %></tbody>
+  </table></div>
+</div>
+<%- include('../partials/abajo') %>

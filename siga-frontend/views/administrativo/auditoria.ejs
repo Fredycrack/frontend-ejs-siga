@@ -1,0 +1,20 @@
+<%- include('../partials/arriba', { titulo: 'Auditoria' }) %>
+<%- include('../partials/encabezado', { titulo: 'Registro de auditoria', subtitulo: 'RNF07: operaciones criticas realizadas en el sistema, de la mas reciente a la mas antigua.' }) %>
+<div class="tarjeta">
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Fecha</th><th>Usuario</th><th>Accion</th><th>Registro</th><th>Detalle</th></tr></thead>
+    <tbody>
+    <% registros.forEach(function (a) { %>
+      <tr>
+        <td class="nowrap"><%= f.fechaHora(a.fecha) %></td>
+        <td><%= a.usuario || '—' %><div class="tenue pequeno"><%= a.tipo_usuario %></div></td>
+        <td><span class="etiqueta gris"><%= a.accion %></span></td>
+        <td><%= a.entidad %><%= a.id_registro ? ' #' + a.id_registro : '' %></td>
+        <td class="pequeno"><%= a.detalle || '' %></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table></div>
+  <p class="tenue pequeno" style="margin-top:.75rem">Se muestran los ultimos <%= registros.length %> registros. <a href="/auditoria?limite=1000">Ver hasta 1000</a></p>
+</div>
+<%- include('../partials/abajo') %>

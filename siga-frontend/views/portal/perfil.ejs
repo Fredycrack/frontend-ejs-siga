@@ -1,0 +1,11 @@
+<%- include('../partials/arriba', { titulo: 'Mi cuenta' }) %>
+<%- include('../partials/encabezado', { titulo: 'Mi cuenta', subtitulo: usuario.nombre + ' - ' + usuario.email }) %>
+<form class="tarjeta" style="max-width:520px" data-api="/api/perfil/password" data-metodo="PUT" data-volver="/portal">
+  <h2>Cambiar contrasena del portal</h2>
+  <div class="aviso error aviso-formulario oculto" role="alert"></div>
+  <div class="campo"><label class="requerido" for="actual">Contrasena actual</label><input type="password" id="actual" name="actual" autocomplete="current-password" required></div>
+  <div class="campo" style="margin-top:.8rem"><label class="requerido" for="nueva">Nueva contrasena</label><input type="password" id="nueva" name="nueva" minlength="8" autocomplete="new-password" required><small>Minimo 8 caracteres con mayuscula, minuscula y numero.</small></div>
+  <div class="campo" style="margin-top:.8rem"><label class="requerido" for="confirmacion">Confirmar nueva contrasena</label><input type="password" id="confirmacion" required autocomplete="new-password" data-igual-a="nueva" data-mensaje="La confirmacion no coincide con la nueva contrasena"></div>
+  <div class="pie-formulario"><button class="btn btn-primario" type="submit">Cambiar contrasena</button></div>
+</form>
+<%- include('../partials/abajo') %>

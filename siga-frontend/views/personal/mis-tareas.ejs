@@ -1,0 +1,21 @@
+<%- include('../partials/arriba', { titulo: 'Mis tareas' }) %>
+<%- include('../partials/encabezado', { titulo: 'Mis tareas', subtitulo: 'RF21: marque el avance de las tareas que le asignaron.' }) %>
+<% const grupos = [['Pendientes', tareas.filter(function (t) { return t.estado === 'Pendiente'; })], ['En proceso', tareas.filter(function (t) { return t.estado === 'En proceso'; })], ['Completadas', tareas.filter(function (t) { return t.estado === 'Completada'; })]]; %>
+<% if (!tareas.length) { %><div class="tarjeta vacio">No tiene tareas asignadas.</div><% } %>
+<% grupos.forEach(function (g) { if (!g[1].length) return; %>
+  <h2 style="margin:1rem 0 .6rem"><%= g[0] %> (<%= g[1].length %>)</h2>
+  <% g[1].forEach(function (t) { %>
+    <div class="tarjeta" style="<%= t.vencida ? 'border-color:#f3c3be' : '' %>">
+      <div class="tarjeta-cabeza"><h3 style="margin:0"><%= t.titulo %></h3><div><%- include('../partials/estado', { valor: t.prioridad }) %> <% if (t.vencida) { %><span class="etiqueta rojo">Vencida</span><% } %></div></div>
+      <% if (t.descripcion) { %><p><%= t.descripcion %></p><% } %>
+      <p class="tenue pequeno" style="margin-top:.4rem">Plazo: <%= f.fecha(t.fecha_inicio) %> a <%= f.fecha(t.fecha_limite) %> &middot; Asignada por <%= t.supervisor || '—' %><% if (t.fecha_completada) { %> &middot; Completada el <%= f.fechaHora(t.fecha_completada) %><% } %></p>
+      <% if (t.estado !== 'Completada') { %>
+        <div class="pie-formulario" style="justify-content:flex-start;margin-top:.8rem">
+          <% if (t.estado === 'Pendiente') { %><button class="btn" data-accion="/api/tareas/<%= t.id_tarea %>/avance" data-metodo="PUT" data-cuerpo='{"estado":"En proceso"}'>Empezar</button><% } %>
+          <button class="btn btn-primario" data-accion="/api/tareas/<%= t.id_tarea %>/avance" data-metodo="PUT" data-cuerpo='{"estado":"Completada"}' data-confirmar="Confirme que termino la tarea &laquo;<%= t.titulo %>&raquo;.">Marcar como completada</button>
+        </div>
+      <% } %>
+    </div>
+  <% }) %>
+<% }) %>
+<%- include('../partials/abajo') %>

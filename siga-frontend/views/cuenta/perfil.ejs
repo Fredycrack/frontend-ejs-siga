@@ -1,0 +1,37 @@
+<%- include('../partials/arriba', { titulo: 'Mi perfil' }) %>
+<%- include('../partials/encabezado', { titulo: 'Mi perfil', subtitulo: 'Sus datos de acceso, su codigo QR de asistencia y el cambio de contrasena.' }) %>
+<div class="rejilla rejilla-2">
+  <div class="tarjeta">
+    <h2>Mis datos</h2>
+    <dl class="ficha">
+      <dt>Nombre</dt><dd><%= perfil.nombre %></dd>
+      <dt>Documento</dt><dd><%= perfil.documento %></dd>
+      <dt>Correo</dt><dd><%= perfil.email %></dd>
+      <dt>Telefono</dt><dd><%= perfil.telefono || '—' %></dd>
+      <dt>Rol</dt><dd><%= perfil.rol %></dd>
+      <dt>Fecha de ingreso</dt><dd><%= f.fecha(perfil.fecha_ingreso) %></dd>
+    </dl>
+    <p class="tenue pequeno" style="margin-top:1rem">Para corregir sus datos comuniquese con el administrador del sistema.</p>
+  </div>
+  <form class="tarjeta" data-api="/api/perfil/password" data-metodo="PUT" data-volver="/perfil">
+    <h2>Cambiar contrasena</h2>
+    <div class="aviso error aviso-formulario oculto" role="alert"></div>
+    <div class="campo"><label class="requerido" for="actual">Contrasena actual</label><input type="password" id="actual" name="actual" autocomplete="current-password" required></div>
+    <div class="campo" style="margin-top:.8rem"><label class="requerido" for="nueva">Nueva contrasena</label><input type="password" id="nueva" name="nueva" autocomplete="new-password" minlength="8" required>
+      <small>Minimo 8 caracteres con mayuscula, minuscula y numero.</small></div>
+    <div class="campo" style="margin-top:.8rem"><label class="requerido" for="confirmacion">Confirmar nueva contrasena</label><input type="password" id="confirmacion" autocomplete="new-password" required data-igual-a="nueva" data-mensaje="La confirmacion no coincide con la nueva contrasena"></div>
+    <div class="pie-formulario"><button class="btn btn-primario" type="submit">Cambiar contrasena</button></div>
+  </form>
+</div>
+<% if (qr) { %>
+  <div class="tarjeta">
+    <div class="tarjeta-cabeza"><h2>Mi codigo QR de asistencia</h2><button class="btn btn-sm no-imprimir" type="button" data-imprimir>Imprimir carne</button></div>
+    <div class="carnet">
+      <div class="cabeza">AGROSERVICES P&amp;D S.A.S.</div>
+      <img src="<%= qr.imagen %>" alt="Codigo QR <%= qr.codigo_qr %>">
+      <div class="cuerpo"><strong><%= perfil.nombre %></strong><div class="tenue"><%= perfil.rol %></div><div class="mono pequeno"><%= qr.codigo_qr %></div></div>
+    </div>
+    <p class="tenue pequeno centro no-imprimir" style="margin-top:.8rem">Presente este codigo en el lector de la entrada para registrar su llegada y su salida.</p>
+  </div>
+<% } %>
+<%- include('../partials/abajo') %>

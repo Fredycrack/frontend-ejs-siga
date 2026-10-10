@@ -1,0 +1,45 @@
+<%- include('../partials/arriba', { titulo: 'Solicitudes de clientes' }) %>
+<%- include('../partials/encabezado', { titulo: 'Solicitudes de clientes', subtitulo: 'RF06: servicios solicitados por los clientes desde el portal.' }) %>
+<div class="pestanas">
+  <% [['', 'Todas'], ['Pendiente', 'Pendientes'], ['Aprobada', 'Aprobadas'], ['Rechazada', 'Rechazadas']].forEach(function (p) { %>
+    <a class="<%= (q.estado || '') === p[0] ? 'activa' : '' %>" href="/solicitudes<%= p[0] ? '?estado=' + p[0] : '' %>"><%= p[1] %></a>
+  <% }) %>
+</div>
+<div class="tarjeta">
+  <% if (!solicitudes.length) { %><p class="vacio">No hay solicitudes.</p><% } else { %>
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Cliente</th><th>Servicio</th><th>Fecha deseada</th><th>Detalle</th><th>Estado</th><% if (es('Supervisor')) { %><th></th><% } %></tr></thead>
+    <tbody>
+    <% solicitudes.forEach(function (s) { %>
+      <tr>
+        <td><strong><%= s.nombre_cliente %></strong><div class="tenue pequeno">Recibida el <%= f.fecha(s.fecha_registro) %></div></td>
+        <td><%= s.nombre_servicio %><div class="tenue pequeno"><%= s.tipo_servicio %></div></td>
+        <td class="nowrap"><%= f.fecha(s.fecha_deseada) %></td>
+        <td><%= s.ubicacion || '' %><div class="tenue pequeno"><%= s.descripcion || '' %></div><% if (s.respuesta) { %><div class="pequeno"><strong>Respuesta:</strong> <%= s.respuesta %></div><% } %></td>
+        <td><%- include('../partials/estado', { valor: s.estado }) %></td>
+        <% if (es('Supervisor')) { %>
+          <td class="celda-acciones"><% if (s.estado === 'Pendiente') { %>
+            <button class="btn btn-sm btn-primario" data-abrir="dlg-responder" data-api="/api/solicitudes/<%= s.id_solicitud %>" data-valores='<%= JSON.stringify({ cliente: s.nombre_cliente, estado: "Aprobada" }) %>'>Responder</button>
+          <% } %></td>
+        <% } %>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table></div>
+  <% } %>
+</div>
+<dialog id="dlg-responder">
+  <div class="dialogo-cabeza"><h2>Responder solicitud</h2><button class="cerrar" type="button" data-cerrar>&times;</button></div>
+  <div class="dialogo-cuerpo">
+    <form data-api="" data-metodo="PUT">
+      <div class="aviso error aviso-formulario oculto" role="alert"></div>
+      <p style="margin-bottom:.8rem">Cliente: <strong data-texto="cliente"></strong></p>
+      <div class="campo"><label class="requerido" for="r-estado">Decision</label>
+        <select id="r-estado" name="estado" required><option>Aprobada</option><option>Rechazada</option></select></div>
+      <div class="campo" style="margin-top:.8rem"><label for="r-respuesta">Mensaje para el cliente</label>
+        <textarea id="r-respuesta" name="respuesta" maxlength="300" placeholder="Ej.: programada para el lunes a las 7:00 a. m."></textarea></div>
+      <div class="pie-formulario"><button class="btn" type="button" data-cerrar>Cancelar</button><button class="btn btn-primario" type="submit">Enviar respuesta</button></div>
+    </form>
+  </div>
+</dialog>
+<%- include('../partials/abajo') %>

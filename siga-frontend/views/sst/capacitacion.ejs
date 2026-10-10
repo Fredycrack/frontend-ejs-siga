@@ -1,0 +1,55 @@
+<% const c = capacitacion; const sst = es('Responsable SST');
+   const convocados = c.participantes.map(function (p) { return p.id_empleado; });
+   const disponibles = empleados.filter(function (e) { return !convocados.includes(e.id_empleado); }); %>
+<%- include('../partials/arriba', { titulo: c.tema }) %>
+<%- include('../partials/encabezado', {
+  titulo: c.tema, subtitulo: f.fecha(c.fecha_capacitacion) + ' - ' + (c.ubicacion || 'Sin lugar definido'), migas: [['Capacitaciones', '/capacitaciones']],
+  acciones: sst ? [{ texto: 'Editar', ruta: '/capacitaciones/' + c.id_capacitacion + '/editar' }] : []
+}) %>
+<div class="rejilla rejilla-2-1">
+  <div class="tarjeta">
+    <div class="tarjeta-cabeza"><h2>Asistencia (<%= c.asistentes %> de <%= c.convocados %>)</h2><%- include('../partials/estado', { valor: c.estado }) %></div>
+    <% if (!c.participantes.length) { %><p class="vacio">No hay trabajadores convocados.</p><% } else { %>
+    <div class="tabla-contenedor"><table>
+      <thead><tr><th>Trabajador</th><th>Asistencia</th><th>Certificado</th><% if (sst) { %><th></th><% } %></tr></thead>
+      <tbody><% c.participantes.forEach(function (p) { %>
+        <tr><td><strong><%= p.nombre %></strong><div class="tenue pequeno"><%= p.rol %></div></td>
+          <td><%= p.asistio ? 'Asistio' : 'Sin registrar' %></td>
+          <td class="mono"><%= p.certificado || '—' %></td>
+          <% if (sst) { %><td class="celda-acciones">
+            <% if (p.asistio) { %>
+              <button class="btn btn-sm" data-accion="/api/capacitaciones/<%= c.id_capacitacion %>/asistencia" data-metodo="PUT" data-cuerpo='<%= JSON.stringify({ id_empleado: p.id_empleado, asistio: 0 }) %>'>Quitar asistencia</button>
+            <% } else { %>
+              <button class="btn btn-sm btn-primario" data-accion="/api/capacitaciones/<%= c.id_capacitacion %>/asistencia" data-metodo="PUT" data-cuerpo='<%= JSON.stringify({ id_empleado: p.id_empleado, asistio: 1 }) %>'>Marcar asistencia</button>
+            <% } %>
+          </td><% } %></tr>
+      <% }) %></tbody>
+    </table></div>
+    <% } %>
+    <% if (sst && disponibles.length) { %>
+      <form data-api="/api/capacitaciones/<%= c.id_capacitacion %>/participantes" data-metodo="PUT" style="margin-top:1.2rem">
+        <div class="aviso error aviso-formulario oculto" role="alert"></div>
+        <h3>Convocar mas trabajadores</h3>
+        <div class="casillas"><% disponibles.forEach(function (e) { %><label><input type="checkbox" name="empleados[]" value="<%= e.id_empleado %>"> <%= e.nombre %></label><% }) %></div>
+        <div class="pie-formulario"><button class="btn" type="submit">Convocar seleccionados</button></div>
+      </form>
+    <% } %>
+  </div>
+  <div class="tarjeta">
+    <h2>Detalle</h2>
+    <dl class="ficha">
+      <dt>Fecha</dt><dd><%= f.fecha(c.fecha_capacitacion) %></dd>
+      <dt>Horario</dt><dd><%= f.hora(c.hora_inicio) %> a <%= f.hora(c.hora_fin) %></dd>
+      <dt>Lugar</dt><dd><%= c.ubicacion || '—' %></dd>
+      <dt>Instructor</dt><dd><%= c.instructor || '—' %></dd>
+      <dt>Contenido</dt><dd><%= c.descripcion || '—' %></dd>
+    </dl>
+    <% if (sst) { %>
+      <div class="pie-formulario">
+        <% if (c.estado === 'Programada') { %><button class="btn btn-primario" data-accion="/api/capacitaciones/<%= c.id_capacitacion %>" data-metodo="PUT" data-cuerpo='{"estado":"Realizada"}' data-confirmar="La capacitacion quedara como realizada.">Marcar como realizada</button><% } %>
+        <button class="btn btn-peligro" data-accion="/api/capacitaciones/<%= c.id_capacitacion %>" data-metodo="DELETE" data-confirmar="Se eliminara la capacitacion y su registro de asistencia." data-volver="/capacitaciones">Eliminar</button>
+      </div>
+    <% } %>
+  </div>
+</div>
+<%- include('../partials/abajo') %>

@@ -1,0 +1,62 @@
+<%- include('../partials/arriba', { titulo: 'Asistencia' }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Asistencia del personal',
+  subtitulo: 'RF19: entradas y salidas registradas con el codigo QR o manualmente.',
+  acciones: es('Supervisor') ? [{ texto: 'Abrir lector QR', ruta: '/asistencia/kiosco', clase: 'btn-primario' }] : []
+}) %>
+<% const abiertas = registros.filter(function (r) { return !r.hora_salida; }).length;
+   const horas = registros.reduce(function (s, r) { return s + Number(r.horas || 0); }, 0); %>
+<div class="indicadores">
+  <div class="indicador"><div class="nombre">Registros en el periodo</div><div class="valor"><%= registros.length %></div></div>
+  <div class="indicador azul"><div class="nombre">Horas trabajadas</div><div class="valor"><%= f.numero(horas, 1) %></div></div>
+  <div class="indicador ambar"><div class="nombre">Sin salida registrada</div><div class="valor"><%= abiertas %></div></div>
+</div>
+<div class="tarjeta">
+  <div class="tarjeta-cabeza">
+    <form class="filtros" method="GET" style="margin:0">
+      <div class="campo"><label for="desde">Desde</label><input type="date" id="desde" name="desde" value="<%= q.desde || f.sumarDias(-6) %>"></div>
+      <div class="campo"><label for="hasta">Hasta</label><input type="date" id="hasta" name="hasta" value="<%= q.hasta || f.hoy() %>"></div>
+      <div class="campo"><label for="emp">Empleado</label>
+        <select id="emp" name="id_empleado"><option value="">Todos</option>
+          <% empleados.forEach(function (e) { %><option value="<%= e.id_empleado %>" <%= String(q.id_empleado) === String(e.id_empleado) ? 'selected' : '' %>><%= e.nombre %></option><% }) %></select></div>
+      <button class="btn" type="submit">Consultar</button>
+    </form>
+    <% if (es('Supervisor')) { %><button class="btn" data-abrir="dlg-manual" data-valores='<%= JSON.stringify({ fecha: f.hoy() }) %>'>Registro manual</button><% } %>
+  </div>
+  <% if (!registros.length) { %><p class="vacio">No hay registros en el periodo.</p><% } else { %>
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Fecha</th><th>Empleado</th><th>Entrada</th><th>Salida</th><th class="num">Horas</th><th>Metodo</th></tr></thead>
+    <tbody>
+    <% registros.forEach(function (r) { %>
+      <tr>
+        <td class="nowrap"><%= f.fecha(r.fecha) %></td>
+        <td><%= r.nombre %><div class="tenue pequeno"><%= r.rol %></div></td>
+        <td><%= f.hora(r.hora_entrada) %></td>
+        <td><%= r.hora_salida ? f.hora(r.hora_salida) : '' %><% if (!r.hora_salida) { %><span class="etiqueta ambar">En turno</span><% } %></td>
+        <td class="num"><%= r.horas === null ? '—' : f.numero(r.horas, 2) %></td>
+        <td><%= r.metodo %></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table></div>
+  <% } %>
+</div>
+<dialog id="dlg-manual">
+  <div class="dialogo-cabeza"><h2>Registro manual de asistencia</h2><button class="cerrar" type="button" data-cerrar>&times;</button></div>
+  <div class="dialogo-cuerpo">
+    <form data-api="/api/asistencia/manual" data-metodo="POST">
+      <div class="aviso error aviso-formulario oculto" role="alert"></div>
+      <p class="tenue pequeno" style="margin-bottom:.8rem">Use esta opcion solo cuando el empleado no pudo registrar su codigo QR. Queda marcado como registro manual en la auditoria.</p>
+      <div class="campos">
+        <div class="campo ancho"><label class="requerido" for="m-emp">Empleado</label>
+          <select id="m-emp" name="id_empleado" required><option value="">Seleccione...</option>
+            <% empleados.forEach(function (e) { %><option value="<%= e.id_empleado %>"><%= e.nombre %></option><% }) %></select></div>
+        <div class="campo"><label class="requerido" for="m-fecha">Fecha</label><input type="date" id="m-fecha" name="fecha" required max="<%= f.hoy() %>"></div>
+        <div class="campo"><label class="requerido" for="m-entrada">Hora de entrada</label><input type="time" id="m-entrada" name="hora_entrada" required value="07:00"></div>
+        <div class="campo"><label for="m-salida">Hora de salida</label><input type="time" id="m-salida" name="hora_salida" data-omitir-vacio></div>
+      </div>
+      <div class="pie-formulario"><button class="btn" type="button" data-cerrar>Cancelar</button><button class="btn btn-primario" type="submit">Registrar</button></div>
+    </form>
+  </div>
+</dialog>
+<%- include('../partials/abajo') %>

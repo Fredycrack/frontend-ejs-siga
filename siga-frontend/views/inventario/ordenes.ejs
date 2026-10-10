@@ -1,0 +1,57 @@
+<%- include('../partials/arriba', { titulo: 'Ordenes de compra' }) %>
+<%- include('../partials/encabezado', { titulo: 'Ordenes de compra', subtitulo: 'RF27 y RF28: ordenes generadas al llegar al stock minimo y su aprobacion.', migas: [['Inventario', '/inventario']] }) %>
+<% if (es('Jefe de Inventario')) { %>
+  <div class="acciones" style="justify-content:flex-end;margin:-.5rem 0 1rem">
+    <button class="btn" data-abrir="dlg-orden">Orden manual</button>
+    <button class="btn btn-primario" data-accion="/api/ordenes/generar" data-confirmar="Se revisaran todos los productos y se creara una orden por cada uno que este en el stock minimo y no tenga orden abierta.">Generar ordenes automaticas</button>
+  </div>
+<% } %>
+<div class="pestanas">
+  <% [['', 'Todas'], ['Pendiente', 'Por aprobar'], ['Aprobada', 'Aprobadas'], ['Recibida', 'Recibidas'], ['Rechazada', 'Rechazadas']].forEach(function (p) { %>
+    <a class="<%= (q.estado || '') === p[0] ? 'activa' : '' %>" href="/ordenes<%= p[0] ? '?estado=' + p[0] : '' %>"><%= p[1] %></a>
+  <% }) %>
+</div>
+<div class="tarjeta">
+  <% if (!ordenes.length) { %><p class="vacio">No hay ordenes de compra.</p><% } else { %>
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Orden</th><th>Producto</th><th class="num">Cantidad</th><th class="num">Valor estimado</th><th>Solicitud</th><th>Estado</th><th></th></tr></thead>
+    <tbody>
+    <% ordenes.forEach(function (o) { %>
+      <tr>
+        <td class="mono"><strong><%= o.numero_orden %></strong><div class="tenue pequeno"><%= o.automatica ? 'Automatica' : 'Manual' %></div></td>
+        <td><a href="/inventario/<%= o.id_inventario %>"><%= o.nombre_producto %></a><div class="tenue pequeno">Disponible <%= f.numero(o.cantidad_disponible, 2) %> / minimo <%= f.numero(o.cantidad_minima, 2) %></div></td>
+        <td class="num"><%= f.numero(o.cantidad, 2) %> <%= o.unidad %></td>
+        <td class="num"><%= f.pesos(o.valor_estimado) %></td>
+        <td><%= f.fecha(o.fecha_creacion) %><div class="tenue pequeno"><%= o.solicitante || 'Sistema' %></div><% if (o.observaciones) { %><div class="pequeno"><%= o.observaciones %></div><% } %></td>
+        <td><%- include('../partials/estado', { valor: o.estado }) %><% if (o.aprobador) { %><div class="tenue pequeno"><%= o.aprobador %></div><% } %></td>
+        <td class="celda-acciones">
+          <% if (o.estado === 'Pendiente' && es()) { %>
+            <button class="btn btn-sm btn-primario" data-accion="/api/ordenes/<%= o.id_orden %>/aprobar" data-metodo="PUT" data-confirmar="Aprobar la compra de <%= f.numero(o.cantidad, 2) %> <%= o.unidad %> de <%= o.nombre_producto %> por <%= f.pesos(o.valor_estimado) %>.">Aprobar</button>
+            <button class="btn btn-sm btn-peligro" data-accion="/api/ordenes/<%= o.id_orden %>/rechazar" data-metodo="PUT" data-confirmar="Se rechazara la orden <%= o.numero_orden %>.">Rechazar</button>
+          <% } %>
+          <% if (o.estado === 'Aprobada' && es('Jefe de Inventario')) { %>
+            <button class="btn btn-sm btn-primario" data-accion="/api/ordenes/<%= o.id_orden %>/recibir" data-metodo="PUT" data-confirmar="Confirme que recibio la mercancia: se sumaran <%= f.numero(o.cantidad, 2) %> <%= o.unidad %> al inventario.">Registrar recepcion</button>
+          <% } %>
+        </td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table></div>
+  <% } %>
+  <% if (es('Jefe de Inventario') && !es()) { %><p class="tenue pequeno" style="margin-top:.8rem">Las ordenes las aprueba el administrador (RF28).</p><% } %>
+</div>
+<dialog id="dlg-orden">
+  <div class="dialogo-cabeza"><h2>Orden de compra manual</h2><button class="cerrar" type="button" data-cerrar>&times;</button></div>
+  <div class="dialogo-cuerpo">
+    <form data-api="/api/ordenes" data-metodo="POST">
+      <div class="aviso error aviso-formulario oculto" role="alert"></div>
+      <div class="campo"><label class="requerido" for="o-prod">Producto</label>
+        <select id="o-prod" name="id_inventario" required><option value="">Seleccione...</option>
+          <% productos.forEach(function (p) { %><option value="<%= p.id_inventario %>"><%= p.nombre_producto %> (<%= f.numero(p.cantidad_disponible) %> <%= p.unidad %>)</option><% }) %></select></div>
+      <div class="campo" style="margin-top:.8rem"><label class="requerido" for="o-cant">Cantidad</label><input type="number" id="o-cant" name="cantidad" min="1" step="0.01" required></div>
+      <div class="campo" style="margin-top:.8rem"><label for="o-obs">Observaciones</label><input id="o-obs" name="observaciones" maxlength="300"></div>
+      <div class="pie-formulario"><button class="btn" type="button" data-cerrar>Cancelar</button><button class="btn btn-primario" type="submit">Crear orden</button></div>
+    </form>
+  </div>
+</dialog>
+<%- include('../partials/abajo') %>
