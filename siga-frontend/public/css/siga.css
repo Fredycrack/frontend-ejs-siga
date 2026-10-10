@@ -145,6 +145,7 @@ a.indicador:hover { border-color: #b9cdb6; }
 .ficha { display: grid; grid-template-columns: minmax(130px, max-content) 1fr; gap: .45rem 1.25rem; }
 .ficha dt { color: var(--tenue); font-size: .88rem; }
 .ficha dd { font-weight: 500; overflow-wrap: anywhere; }
+.ficha-2 { grid-template-columns: minmax(130px, max-content) 1fr minmax(130px, max-content) 1fr; }
 
 /* ---------- Tablas ---------- */
 .tabla-contenedor { overflow-x: auto; margin: 0 -1.25rem; padding: 0 1.25rem; }
@@ -155,6 +156,8 @@ tbody tr:hover { background: #fafcf9; }
 td.num, th.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
 tr.alerta-fila { background: #fff8ec; }
 tfoot td { font-weight: 700; border-top: 2px solid var(--borde); }
+.tabla-compacta th, .tabla-compacta td { padding: .5rem .4rem; font-size: .82rem; }
+.tabla-compacta th { font-size: .7rem; letter-spacing: .02em; }
 .celda-acciones { text-align: right; min-width: 150px; }
 .celda-acciones .btn { margin: .12rem 0 .12rem .25rem; white-space: nowrap; }
 td .mono, a.mono { white-space: nowrap; }
@@ -341,7 +344,7 @@ dialog .cerrar { background: none; border: 0; font-size: 1.4rem; cursor: pointer
   .acceso-imagen { padding: 1.5rem; }
   .acceso-imagen ul, .acceso-imagen .pie-marca { display: none; }
   .acceso-imagen h1 { font-size: 1.5rem; margin: .6rem 0 .3rem; }
-  .ficha { grid-template-columns: 1fr; gap: .1rem; }
+  .ficha, .ficha-2 { grid-template-columns: 1fr; gap: .1rem; }
   .ficha dd { margin-bottom: .45rem; }
   .tarjeta { padding: 1rem; }
   .tabla-contenedor { margin: 0 -1rem; padding: 0 1rem; }

@@ -5,9 +5,10 @@
   migas: [['Labores', '/labores']]
 }) %>
 <div class="indicadores">
-  <% ['Programada', 'En proceso', 'Finalizada', 'Cancelada'].forEach(function (e, i) {
+  <% [['Programada', 'Programadas'], ['En proceso', 'En proceso'], ['Finalizada', 'Finalizadas'], ['Cancelada', 'Canceladas']].forEach(function (par, i) {
+       const e = par[0];
        const fila = resumen.por_estado.find(function (x) { return x.estado === e; }); %>
-    <a class="indicador <%= ['ambar', 'azul', '', 'rojo'][i] %>" href="/labores?estado=<%= encodeURIComponent(e) %>"><div class="nombre"><%= e %>s</div><div class="valor"><%= fila ? fila.total : 0 %></div></a>
+    <a class="indicador <%= ['ambar', 'azul', '', 'rojo'][i] %>" href="/labores?estado=<%= encodeURIComponent(e) %>"><div class="nombre"><%= par[1] %></div><div class="valor"><%= fila ? fila.total : 0 %></div></a>
   <% }) %>
 </div>
 <div class="tarjeta">

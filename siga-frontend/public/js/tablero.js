@@ -47,6 +47,6 @@
       labels: eq.map(function (e) { return e.estado; }),
       datasets: [{ data: eq.map(function (e) { return e.total; }), backgroundColor: eq.map(function (e) { return colores[e.estado] || '#90a4ae'; }) }]
     },
-    options: { maintainAspectRatio: false, plugins: { legend: { display: true, position: 'right' } } }
+    options: { maintainAspectRatio: false, plugins: { legend: { display: true, position: 'bottom' } } }
   });
 })();

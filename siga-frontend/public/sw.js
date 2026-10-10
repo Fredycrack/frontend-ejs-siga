@@ -4,7 +4,7 @@
  *   de campo) y "Mi taller" (tecnico) para usarlas y registrar avances sin senal.
  * - Las llamadas a /api nunca se guardan: siempre van a la red.
  */
-const VERSION = 'siga-2.0.1';
+const VERSION = 'siga-2.0.2';
 const ESTATICOS = [
   '/css/siga.css', '/js/siga.js', '/js/cola-offline.js', '/js/campo.js', '/js/taller.js', '/img/logo.svg',
   '/img/icono-192.png', '/manifest.webmanifest', '/offline'

@@ -16,8 +16,7 @@
   <div class="indicador"><div class="nombre">Proporcion de accidentes mortales</div><div class="valor"><%= f.numero(d.proporcion_mortalidad, 2) %> %</div></div>
   <div class="indicador azul"><div class="nombre">Cobertura de capacitacion</div><div class="valor"><%= d.cobertura_capacitacion === null ? 'Sin datos' : f.numero(d.cobertura_capacitacion, 1) + ' %' %></div><div class="nota"><%= d.capacitaciones_realizadas %> realizada(s)</div></div>
 </div>
-<div class="rejilla rejilla-2-1">
-  <div class="tarjeta">
+<div class="tarjeta">
     <h2>Eventos del periodo</h2>
     <% if (!d.eventos.length) { %><p class="vacio">No hubo eventos en el periodo.</p><% } else { %>
     <div class="tabla-contenedor"><table>
@@ -27,10 +26,10 @@
       <% }) %></tbody>
     </table></div>
     <% } %>
-  </div>
-  <div class="tarjeta">
+</div>
+<div class="tarjeta">
     <h2>Datos base</h2>
-    <dl class="ficha">
+    <dl class="ficha ficha-2">
       <dt>Trabajadores activos</dt><dd><%= d.trabajadores %></dd>
       <dt>Accidentes</dt><dd><%= d.accidentes %></dd>
       <dt>Incidentes</dt><dd><%= d.incidentes %></dd>
@@ -39,6 +38,5 @@
       <dt>Reportados a la ARL</dt><dd><%= d.reportados_arl %></dd>
       <dt>Entregas de EPP</dt><dd><%= d.entregas_epp %> (<%= d.elementos_epp %> elementos)</dd>
     </dl>
-  </div>
 </div>
 <%- include('../partials/abajo') %>

@@ -1,19 +1,17 @@
 <%- include('../partials/arriba', { titulo: 'Ordenes de compra' }) %>
 <%- include('../partials/encabezado', { titulo: 'Ordenes de compra', subtitulo: 'RF27 y RF28: ordenes generadas al llegar al stock minimo y su aprobacion.', migas: [['Inventario', '/inventario']] }) %>
-<div class="tarjeta-cabeza">
-  <div class="pestanas" style="margin:0;flex:1">
-    <% [['', 'Todas'], ['Pendiente', 'Por aprobar'], ['Aprobada', 'Aprobadas'], ['Recibida', 'Recibidas'], ['Rechazada', 'Rechazadas']].forEach(function (p) { %>
-      <a class="<%= (q.estado || '') === p[0] ? 'activa' : '' %>" href="/ordenes<%= p[0] ? '?estado=' + p[0] : '' %>"><%= p[1] %></a>
-    <% }) %>
+<% if (es('Jefe de Inventario')) { %>
+  <div class="acciones" style="justify-content:flex-end;margin:-.5rem 0 1rem">
+    <button class="btn" data-abrir="dlg-orden">Orden manual</button>
+    <button class="btn btn-primario" data-accion="/api/ordenes/generar" data-confirmar="Se revisaran todos los productos y se creara una orden por cada uno que este en el stock minimo y no tenga orden abierta.">Generar ordenes automaticas</button>
   </div>
-  <% if (es('Jefe de Inventario')) { %>
-    <div class="acciones">
-      <button class="btn" data-abrir="dlg-orden">Orden manual</button>
-      <button class="btn btn-primario" data-accion="/api/ordenes/generar" data-confirmar="Se revisaran todos los productos y se creara una orden por cada uno que este en el stock minimo y no tenga orden abierta.">Generar ordenes automaticas</button>
-    </div>
-  <% } %>
+<% } %>
+<div class="pestanas">
+  <% [['', 'Todas'], ['Pendiente', 'Por aprobar'], ['Aprobada', 'Aprobadas'], ['Recibida', 'Recibidas'], ['Rechazada', 'Rechazadas']].forEach(function (p) { %>
+    <a class="<%= (q.estado || '') === p[0] ? 'activa' : '' %>" href="/ordenes<%= p[0] ? '?estado=' + p[0] : '' %>"><%= p[1] %></a>
+  <% }) %>
 </div>
-<div class="tarjeta" style="margin-top:1rem">
+<div class="tarjeta">
   <% if (!ordenes.length) { %><p class="vacio">No hay ordenes de compra.</p><% } else { %>
   <div class="tabla-contenedor"><table>
     <thead><tr><th>Orden</th><th>Producto</th><th class="num">Cantidad</th><th class="num">Valor estimado</th><th>Solicitud</th><th>Estado</th><th></th></tr></thead>

@@ -27,7 +27,7 @@
 <% if (typeof liquidaciones !== 'undefined') { const t = liquidaciones.reduce(function (s, l) { s.v += Number(l.valor_dias); s.b += Number(l.bonificacion); s.d += Number(l.deducciones); s.t += Number(l.total); return s; }, { v: 0, b: 0, d: 0, t: 0 }); %>
   <div class="tarjeta">
     <div class="tarjeta-cabeza"><h2>Liquidacion del <%= f.fecha(q.periodo_inicio) %> al <%= f.fecha(q.periodo_fin) %></h2><button class="btn btn-sm no-imprimir" type="button" data-imprimir>Imprimir</button></div>
-    <div class="tabla-contenedor"><table>
+    <div class="tabla-contenedor"><table class="tabla-compacta">
       <thead><tr><th>Empleado</th><th class="num">Dias</th><th class="num">Horas</th><th class="num">Salario base</th><th class="num">Valor dias</th><th class="num">Labores / tareas</th><th class="num">Bonificacion</th><th class="num">Deducciones</th><th class="num">Total</th></tr></thead>
       <tbody><% liquidaciones.forEach(function (l) { %>
         <tr><td><strong><%= l.nombre %></strong><div class="tenue pequeno"><%= l.rol %></div></td>

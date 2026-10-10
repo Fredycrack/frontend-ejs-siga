@@ -13,7 +13,7 @@
 <% const porAprobar = equipos.filter(function (e) { return e.valor_cotizacion !== null && !e.cotizacion_aprobada; }); if (porAprobar.length) { %>
   <div class="aviso advertencia"><%= porAprobar.length %> equipo(s) tienen una cotizacion esperando su aprobacion. <a href="/portal/equipos">Revisar</a></div>
 <% } %>
-<div class="rejilla rejilla-2">
+<div>
   <div class="tarjeta">
     <div class="tarjeta-cabeza"><h2>Facturas recientes</h2><a class="btn btn-sm" href="/portal/facturas">Ver todas</a></div>
     <%- include('../facturacion/_tabla', { facturas: facturas.slice(0, 5), portal: true }) %>

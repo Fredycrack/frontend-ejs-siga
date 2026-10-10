@@ -103,7 +103,7 @@
     <a class="indicador azul" href="/incidentes"><div class="nombre">Incidentes sin cerrar</div><div class="valor"><%= incidentes.filter(function (i) { return i.estado !== 'Cerrado'; }).length %></div></a>
   </div>
   <% const reponer = epp.filter(function (e) { return e.reposicion_proxima; }); if (reponer.length) { %>
-    <div class="aviso advertencia"><%= reponer.length %> entrega(s) de EPP deben reponerse en los proximos 7 dias. <a href="/epp">Ver entregas</a></div>
+    <div class="aviso advertencia"><%= reponer.length %> entrega(s) de EPP deben reponerse en los proximos 15 dias o ya vencieron. <a href="/epp">Ver entregas</a></div>
   <% } %>
 <% } %>
 
