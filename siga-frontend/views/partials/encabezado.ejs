@@ -1,0 +1,16 @@
+<div class="encabezado">
+  <div>
+    <% if (typeof migas !== 'undefined' && migas) { %>
+      <div class="migas"><% migas.forEach(function (m, i) { %><% if (i) { %> / <% } %><a href="<%= m[1] %>"><%= m[0] %></a><% }) %></div>
+    <% } %>
+    <h1><%= titulo %></h1>
+    <% if (typeof subtitulo !== 'undefined' && subtitulo) { %><p><%= subtitulo %></p><% } %>
+  </div>
+  <% if (typeof acciones !== 'undefined' && acciones && acciones.length) { %>
+    <div class="acciones">
+      <% acciones.forEach(function (a) { %>
+        <a class="btn <%= a.clase || '' %>" href="<%= a.ruta %>" <%= a.descargar ? 'download' : '' %>><%= a.texto %></a>
+      <% }) %>
+    </div>
+  <% } %>
+</div>

@@ -1,0 +1,23 @@
+    </main>
+  </div>
+</div>
+
+<div class="notificaciones" id="notificaciones" aria-live="polite"></div>
+
+<dialog id="dialogo-confirmar">
+  <div class="dialogo-cabeza"><h2 id="confirmar-titulo">Confirmar</h2><button class="cerrar" type="button" data-cerrar aria-label="Cerrar">&times;</button></div>
+  <div class="dialogo-cuerpo">
+    <p id="confirmar-texto"></p>
+    <div class="pie-formulario">
+      <button class="btn" type="button" data-cerrar>Cancelar</button>
+      <button class="btn btn-primario" type="button" id="confirmar-si">Confirmar</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="/js/siga.js"></script>
+<% (typeof scripts !== 'undefined' ? scripts : []).forEach(function (s) { %>
+<script src="<%= s %>"></script>
+<% }) %>
+</body>
+</html>

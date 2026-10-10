@@ -1,0 +1,4 @@
+Librerias de terceros incluidas en SIGA (se sirven desde el propio servidor):
+
+- chart.umd.min.js  -> Chart.js 4.4.1 (licencia MIT) https://www.chartjs.org
+- html5-qrcode.min.js -> html5-qrcode 2.3.8 (licencia Apache 2.0) https://github.com/mebjas/html5-qrcode

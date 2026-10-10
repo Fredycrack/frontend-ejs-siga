@@ -1,34 +1,36 @@
-import { Router } from "express";
-import {
-  getLogin, postLogin,
-  getMenu, logout,
-  getEmpleados,
-  getNuevoEmpleado, postCrearEmpleado,
-  getEditarEmpleado, postEditarEmpleado,
-  postEliminarEmpleado
-} from "../controllers/controller.views.js";
-import { verificarSesion } from "../middleware/auth.middleware.js";
+import { Router } from 'express';
+import { verificarSesion, rol, soloAdmin } from '../middleware/auth.middleware.js';
+import { ROLES } from '../config/menu.js';
+import { inicio } from '../controllers/controller.inicio.js';
 
+/**
+ * Paginas de los empleados, agrupadas por modulo del sistema.
+ * rol(...) limita cada pagina a los roles que la API autoriza;
+ * el Administrador tiene acceso a todas.
+ */
+const { SUPERVISOR: S, CAMPO: C, TECNICO: T, INVENTARIO: I, SST, GERENTE: G } = ROLES;
+const ID = ':id(\\d+)';
 const router = Router();
+router.use(verificarSesion);
 
-// ============================================
-// AUTENTICACION (sin proteccion)
-// ============================================
-router.get("/", getLogin);
-router.post("/login", postLogin);
+router.get('/inicio', inicio);
 
-// ============================================
-// RUTAS PROTEGIDAS (requieren sesion activa)
-// ============================================
-router.get("/menu", verificarSesion, getMenu);
-router.get("/logout", logout);
+// ---------- Mi trabajo (todos los empleados) ----------
 
-// CRUD de Empleados
-router.get("/empleados", verificarSesion, getEmpleados);
-router.get("/empleados/nuevo", verificarSesion, getNuevoEmpleado);
-router.post("/empleados/crear", verificarSesion, postCrearEmpleado);
-router.get("/empleados/editar/:id", verificarSesion, getEditarEmpleado);
-router.post("/empleados/editar", verificarSesion, postEditarEmpleado);
-router.post("/empleados/eliminar", verificarSesion, postEliminarEmpleado);
+// ---------- Modulo 1: servicios agricolas ----------
+
+// ---------- Modulo 2: servicios tecnologicos ----------
+
+// ---------- Modulo 3: gestion administrativa ----------
+
+// ---------- Modulo 4: gestion de personal ----------
+
+// ---------- Modulo 5: inventario ----------
+
+// ---------- Modulo 6: seguridad y salud en el trabajo ----------
+
+// ---------- Modulo 7: facturacion ----------
+
+// ---------- Modulo 8: reportes ----------
 
 export default router;

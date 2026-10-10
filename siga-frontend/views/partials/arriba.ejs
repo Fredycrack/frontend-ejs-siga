@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= typeof titulo !== 'undefined' ? titulo + ' | ' : '' %>SIGA - AGROSERVICES</title>
+  <meta name="theme-color" content="#2e7d32">
+  <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/css/siga.css">
+</head>
+<body data-usuario="<%= usuario ? usuario.id : '' %>">
+<div class="app">
+  <aside class="lateral" id="menu-lateral">
+    <a class="marca" href="<%= usuario && usuario.tipo === 'cliente' ? '/portal' : '/inicio' %>">
+      <img src="/img/logo.svg" alt="">
+      <div><strong>SIGA</strong><span>AGROSERVICES P&amp;D S.A.S.</span></div>
+    </a>
+    <nav aria-label="Menu principal">
+      <% menu.forEach(function (seccion) { %>
+        <div class="menu-seccion">
+          <h4><%= seccion.titulo %></h4>
+          <% seccion.items.forEach(function (item) { %>
+            <a href="<%= item.ruta %>" class="<%= item.ruta === rutaMenu ? 'activo' : '' %>"><%= item.texto %></a>
+          <% }) %>
+        </div>
+      <% }) %>
+    </nav>
+  </aside>
+
+  <div class="principal">
+    <header class="barra">
+      <button class="boton-menu" type="button" data-menu aria-label="Abrir menu">&#9776;</button>
+      <div class="titulo-barra"><%= typeof titulo !== 'undefined' ? titulo : 'SIGA' %></div>
+      <div class="usuario">
+        <button type="button" data-desplegable="menu-usuario" aria-haspopup="true">
+          <span class="avatar"><%= f.iniciales(usuario.nombre) %></span>
+          <span class="datos"><%= usuario.nombre %><small><%= usuario.rol %></small></span>
+        </button>
+        <div class="desplegable" id="menu-usuario">
+          <a href="<%= usuario.tipo === 'cliente' ? '/portal/perfil' : '/perfil' %>">Mi perfil y contrasena</a>
+          <a href="/logout" data-salir>Cerrar sesion</a>
+        </div>
+      </div>
+    </header>
+    <div class="estado-red" role="status">Sin conexion a internet. Lo que registre se guardara en este dispositivo y se enviara al recuperar la senal.</div>
+    <main class="contenido">

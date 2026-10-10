@@ -1,0 +1,127 @@
+<%- include('partials/arriba') %>
+<%
+  const pendientesTareas = (tareas || []).filter(function (t) { return t.estado !== 'Completada'; });
+  const saludo = (function () { const h = Number(new Date().toLocaleString('en-US', { hour: 'numeric', hour12: false, timeZone: 'America/Bogota' })); return h < 12 ? 'Buenos dias' : h < 19 ? 'Buenas tardes' : 'Buenas noches'; })();
+%>
+<div class="encabezado">
+  <div>
+    <h1><%= saludo %>, <%= usuario.nombre.split(' ')[0] %></h1>
+    <p><%= usuario.rol %> &middot; <%= f.fecha(fecha) %></p>
+  </div>
+  <div class="acciones">
+    <% if (es('Supervisor')) { %><a class="btn btn-primario" href="/labores/nueva">Programar labor</a><% } %>
+    <% if (usuario.rol === 'Tecnico Electronico') { %><a class="btn" href="/mi-taller">Mi taller</a><% } %>
+    <% if (es('Tecnico Electronico')) { %><a class="btn btn-primario" href="/equipos/nuevo">Recibir equipo</a><% } %>
+    <% if (usuario.rol === 'Trabajador de Campo') { %><a class="btn btn-primario" href="/mis-labores">Ir a mis labores</a><% } %>
+  </div>
+</div>
+
+<% if (typeof tablero !== 'undefined') { const t = tablero; %>
+  <div class="indicadores">
+    <a class="indicador" href="/labores"><div class="nombre">Labores finalizadas</div><div class="valor"><%= t.labores.finalizadas %> de <%= t.labores.total %></div><div class="nota">Cumplimiento promedio <%= f.porcentaje(t.labores.cumplimiento) %></div></a>
+    <a class="indicador azul" href="/facturas"><div class="nombre">Facturado este mes</div><div class="valor"><%= f.pesos(t.finanzas.facturado_mes) %></div><div class="nota">Recaudado <%= f.pesos(t.finanzas.recaudado_mes) %></div></a>
+    <a class="indicador ambar" href="/cartera"><div class="nombre">Cartera pendiente</div><div class="valor"><%= f.pesos(t.finanzas.pendiente) %></div><div class="nota">Vencida <%= f.pesos(t.finanzas.vencida) %></div></a>
+    <a class="indicador <%= t.inventario.bajo_minimo ? 'rojo' : '' %>" href="/inventario?bajo_minimo=1"><div class="nombre">Productos bajo el minimo</div><div class="valor"><%= t.inventario.bajo_minimo %></div><div class="nota"><%= t.inventario.ordenes_pendientes %> orden(es) de compra pendientes</div></a>
+    <a class="indicador" href="/asistencia"><div class="nombre">Personal presente hoy</div><div class="valor"><%= t.personal.presentes_hoy %> / <%= t.personal.activos %></div><div class="nota"><%= t.personal.tareas_vencidas %> tarea(s) vencida(s)</div></a>
+    <a class="indicador <%= t.sst.incidentes_abiertos ? 'rojo' : '' %>" href="/incidentes"><div class="nombre">Incidentes abiertos (SST)</div><div class="valor"><%= t.sst.incidentes_abiertos %></div><div class="nota"><%= t.solicitudes_pendientes %> solicitud(es) de clientes por responder</div></a>
+  </div>
+
+  <div class="rejilla rejilla-2" style="margin-bottom:1.25rem">
+    <div class="tarjeta"><h2>Facturacion por mes</h2><div class="grafica"><canvas id="g-facturacion" aria-label="Facturacion por mes"></canvas></div></div>
+    <div class="tarjeta"><h2>Labores finalizadas por mes</h2><div class="grafica"><canvas id="g-labores" aria-label="Labores finalizadas por mes"></canvas></div></div>
+  </div>
+  <div class="rejilla rejilla-2-1" style="margin-bottom:1.25rem">
+    <div class="tarjeta">
+      <div class="tarjeta-cabeza"><h2>Avance por contrato</h2><a class="btn btn-sm" href="/labores/avance">Ver detalle</a></div>
+      <%- include('agricola/_avance', { filas: resumen.por_contrato, compacta: true }) %>
+    </div>
+    <div class="tarjeta"><h2>Equipos en taller</h2><div class="grafica" style="height:220px"><canvas id="g-equipos" aria-label="Equipos por estado"></canvas></div></div>
+  </div>
+  <script type="application/json" id="datos-tablero"><%- JSON.stringify(t.series ? { series: t.series, equipos: t.equipos } : {}).replace(/</g, '\\u003c') %></script>
+<% } %>
+
+<% if (typeof laboresHoy !== 'undefined') { %>
+  <div class="indicadores">
+    <a class="indicador" href="/labores?fecha=<%= fecha %>"><div class="nombre">Labores de hoy</div><div class="valor"><%= laboresHoy.length %></div><div class="nota"><%= laboresHoy.filter(function (l) { return l.estado === 'En proceso'; }).length %> en proceso</div></a>
+    <a class="indicador azul" href="/asistencia"><div class="nombre">Personal presente</div><div class="valor"><%= asistenciaHoy.length %></div><div class="nota"><%= asistenciaHoy.filter(function (a) { return !a.hora_salida; }).length %> sin registrar salida</div></a>
+    <a class="indicador ambar" href="/solicitudes"><div class="nombre">Solicitudes por responder</div><div class="valor"><%= solicitudes.length %></div></a>
+    <a class="indicador <%= tareasEquipo.some(function (t) { return t.vencida; }) ? 'rojo' : '' %>" href="/tareas"><div class="nombre">Tareas pendientes del equipo</div><div class="valor"><%= tareasEquipo.length %></div><div class="nota"><%= tareasEquipo.filter(function (t) { return t.vencida; }).length %> vencida(s)</div></a>
+  </div>
+  <div class="rejilla rejilla-2-1">
+    <div class="tarjeta">
+      <div class="tarjeta-cabeza"><h2>Labores programadas para hoy</h2><a class="btn btn-sm" href="/labores/nueva">Programar</a></div>
+      <%- include('agricola/_tabla', { labores: laboresHoy, compacta: true }) %>
+    </div>
+    <div class="tarjeta">
+      <div class="tarjeta-cabeza"><h2>Avance por contrato</h2></div>
+      <%- include('agricola/_avance', { filas: resumen.por_contrato, compacta: true }) %>
+    </div>
+  </div>
+<% } %>
+
+<% if (typeof misLabores !== 'undefined') { const activas = misLabores.filter(function (l) { return l.estado !== 'Finalizada' && l.estado !== 'Cancelada'; }); %>
+  <div class="indicadores">
+    <a class="indicador" href="/mis-labores"><div class="nombre">Labores asignadas</div><div class="valor"><%= activas.length %></div><div class="nota">Desde hoy en adelante</div></a>
+    <a class="indicador ambar" href="/mis-tareas"><div class="nombre">Tareas pendientes</div><div class="valor"><%= pendientesTareas.length %></div></a>
+  </div>
+<% } %>
+
+<% if (typeof equipos !== 'undefined') { %>
+  <div class="indicadores">
+    <% ['Recibido', 'En diagnostico', 'En proceso', 'Completado'].forEach(function (e, i) { %>
+      <a class="indicador <%= ['ambar', 'azul', 'azul', ''][i] %>" href="/equipos?estado=<%= encodeURIComponent(e) %>"><div class="nombre"><%= e %></div><div class="valor"><%= equipos.filter(function (q) { return q.estado === e; }).length %></div></a>
+    <% }) %>
+  </div>
+<% } %>
+
+<% if (typeof ordenes !== 'undefined') { %>
+  <div class="indicadores">
+    <a class="indicador rojo" href="/inventario?bajo_minimo=1"><div class="nombre">Productos bajo el minimo</div><div class="valor"><%= alertas.length %></div></a>
+    <a class="indicador ambar" href="/ordenes?estado=Pendiente"><div class="nombre">Ordenes por aprobar</div><div class="valor"><%= ordenes.length %></div><div class="nota"><%= f.pesos(ordenes.reduce(function (s, o) { return s + Number(o.valor_estimado); }, 0)) %></div></a>
+  </div>
+<% } %>
+
+<% if (typeof alertas !== 'undefined' && alertas.length) { %>
+  <div class="tarjeta">
+    <div class="tarjeta-cabeza"><h2>Alertas de stock minimo</h2><a class="btn btn-sm" href="/inventario?bajo_minimo=1">Ver inventario</a></div>
+    <div class="tabla-contenedor"><table>
+      <thead><tr><th>Producto</th><th>Categoria</th><th class="num">Disponible</th><th class="num">Minimo</th><th>Orden de compra</th></tr></thead>
+      <tbody><% alertas.forEach(function (a) { %>
+        <tr class="alerta-fila"><td><a href="/inventario/<%= a.id_inventario %>"><%= a.nombre_producto %></a><div class="tenue pequeno"><%= a.codigo_producto %></div></td><td><%= a.categoria %></td>
+          <td class="num"><%= f.numero(a.cantidad_disponible, 2) %> <%= a.unidad %></td><td class="num"><%= f.numero(a.cantidad_minima, 2) %></td>
+          <td><%= a.orden_abierta ? a.orden_abierta : 'Sin orden' %></td></tr>
+      <% }) %></tbody>
+    </table></div>
+  </div>
+<% } %>
+
+<% if (typeof indicadores !== 'undefined') { const s = indicadores; %>
+  <div class="indicadores">
+    <a class="indicador rojo" href="/sst/indicadores"><div class="nombre">Indice de frecuencia</div><div class="valor"><%= f.numero(s.indice_frecuencia, 2) %></div><div class="nota"><%= s.accidentes %> accidente(s) en el ano</div></a>
+    <a class="indicador ambar" href="/sst/indicadores"><div class="nombre">Indice de severidad</div><div class="valor"><%= f.numero(s.indice_severidad, 2) %></div><div class="nota"><%= s.dias_perdidos %> dia(s) de incapacidad</div></a>
+    <a class="indicador" href="/capacitaciones"><div class="nombre">Cobertura de capacitacion</div><div class="valor"><%= f.porcentaje(s.cobertura_capacitacion) %></div><div class="nota"><%= capacitaciones.length %> programada(s)</div></a>
+    <a class="indicador azul" href="/incidentes"><div class="nombre">Incidentes sin cerrar</div><div class="valor"><%= incidentes.filter(function (i) { return i.estado !== 'Cerrado'; }).length %></div></a>
+  </div>
+  <% const reponer = epp.filter(function (e) { return e.reposicion_proxima; }); if (reponer.length) { %>
+    <div class="aviso advertencia"><%= reponer.length %> entrega(s) de EPP deben reponerse en los proximos 7 dias. <a href="/epp">Ver entregas</a></div>
+  <% } %>
+<% } %>
+
+<div class="tarjeta">
+  <div class="tarjeta-cabeza"><h2>Mis tareas pendientes</h2><a class="btn btn-sm" href="/mis-tareas">Ver todas</a></div>
+  <% if (!pendientesTareas.length) { %>
+    <p class="vacio">No tiene tareas pendientes.</p>
+  <% } else { %>
+    <div class="tabla-contenedor"><table>
+      <thead><tr><th>Tarea</th><th>Prioridad</th><th>Fecha limite</th><th>Estado</th></tr></thead>
+      <tbody><% pendientesTareas.slice(0, 5).forEach(function (t) { %>
+        <tr><td><%= t.titulo %><div class="tenue pequeno">Asignada por <%= t.supervisor || '—' %></div></td>
+          <td><%- include('partials/estado', { valor: t.prioridad }) %></td>
+          <td><%= f.fecha(t.fecha_limite) %><% if (t.vencida) { %> <span class="etiqueta rojo">Vencida</span><% } %></td>
+          <td><%- include('partials/estado', { valor: t.estado }) %></td></tr>
+      <% }) %></tbody>
+    </table></div>
+  <% } %>
+</div>
+
+<%- include('partials/abajo', { scripts: typeof tablero !== 'undefined' ? ['/js/vendor/chart.umd.min.js', '/js/tablero.js'] : [] }) %>
