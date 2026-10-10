@@ -1,0 +1,18 @@
+# Despliegue del frontend de SIGA en Render (Blueprint).
+# Antes, despliegue la API (backend-api-siga) y copie su URL en API_URL.
+services:
+  - type: web
+    name: siga-frontend
+    runtime: node
+    plan: free
+    rootDir: siga-frontend
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: API_URL
+        sync: false          # ejemplo: https://backend-api-siga.onrender.com/api
+      - key: SESSION_SECRET
+        generateValue: true
