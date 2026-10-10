@@ -1,0 +1,34 @@
+<%- include('../partials/arriba', { titulo: 'Contratos' }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Contratos',
+  subtitulo: 'Contratos de servicios agricolas y tecnologicos con los clientes (RF02).',
+  acciones: es() ? [{ texto: 'Nuevo contrato', ruta: '/contratos/nuevo' + (q.id_cliente ? '?id_cliente=' + q.id_cliente : ''), clase: 'btn-primario' }] : []
+}) %>
+<div class="tarjeta">
+  <form class="filtros" method="GET">
+    <div class="campo"><label for="f-estado">Estado</label>
+      <select id="f-estado" name="estado" data-auto><option value="">Todos</option>
+        <% ['Vigente', 'Finalizado', 'Cancelado'].forEach(function (e) { %><option <%= q.estado === e ? 'selected' : '' %>><%= e %></option><% }) %></select></div>
+    <div class="campo"><label for="f-cliente">Cliente</label>
+      <select id="f-cliente" name="id_cliente" data-auto><option value="">Todos</option>
+        <% clientes.forEach(function (c) { %><option value="<%= c.id_cliente %>" <%= String(q.id_cliente) === String(c.id_cliente) ? 'selected' : '' %>><%= c.nombre_cliente %></option><% }) %></select></div>
+  </form>
+  <% if (!contratos.length) { %><p class="vacio">No hay contratos con estos filtros.</p><% } else { %>
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Contrato</th><th>Cliente</th><th>Tipo</th><th>Vigencia</th><th class="num">Valor</th><th>Estado</th></tr></thead>
+    <tbody>
+    <% contratos.forEach(function (k) { %>
+      <tr>
+        <td><a href="/contratos/<%= k.id_contrato %>"><strong><%= k.numero_contrato %></strong></a></td>
+        <td><%= k.nombre_cliente %></td>
+        <td><%= k.tipo_contrato %></td>
+        <td class="nowrap"><%= f.fecha(k.fecha_inicio) %> a <%= f.fecha(k.fecha_fin) %></td>
+        <td class="num"><%= f.pesos(k.valor_total) %></td>
+        <td><%- include('../partials/estado', { valor: k.estado }) %></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table></div>
+  <% } %>
+</div>
+<%- include('../partials/abajo') %>

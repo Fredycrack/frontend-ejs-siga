@@ -1,0 +1,50 @@
+<%- include('../partials/arriba', { titulo: 'Clientes' }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Clientes',
+  subtitulo: 'Empresas floricultoras y personas que contratan los servicios (RF01).',
+  acciones: es() ? [{ texto: 'Nuevo cliente', ruta: '/clientes/nuevo', clase: 'btn-primario' }] : []
+}) %>
+<div class="tarjeta">
+  <form class="filtros" method="GET">
+    <div class="campo"><label for="f-tipo">Tipo</label>
+      <select id="f-tipo" name="tipo_cliente" data-auto><option value="">Todos</option>
+        <% ['Empresa floricultora', 'Empresa', 'Persona natural'].forEach(function (t) { %><option <%= q.tipo_cliente === t ? 'selected' : '' %>><%= t %></option><% }) %></select></div>
+    <div class="campo"><label for="f-estado">Estado</label>
+      <select id="f-estado" name="estado" data-auto><option value="">Todos</option><option <%= q.estado === 'Activo' ? 'selected' : '' %>>Activo</option><option <%= q.estado === 'Inactivo' ? 'selected' : '' %>>Inactivo</option></select></div>
+  </form>
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Cliente</th><th>Documento</th><th>Contacto</th><th>Municipio</th><th>Portal</th><th>Estado</th><% if (es()) { %><th></th><% } %></tr></thead>
+    <tbody>
+    <% clientes.forEach(function (c) { %>
+      <tr>
+        <td><strong><%= c.nombre_cliente %></strong><div class="tenue pequeno"><%= c.tipo_cliente %></div></td>
+        <td><%= c.documento %></td>
+        <td><%= c.representante || '' %><div class="tenue pequeno"><%= c.email %> &middot; <%= c.telefono || '' %></div></td>
+        <td><%= c.ciudad || '—' %></td>
+        <td><%= c.acceso_portal ? 'Habilitado' : 'Sin acceso' %></td>
+        <td><%- include('../partials/estado', { valor: c.estado }) %></td>
+        <% if (es()) { %>
+        <td class="celda-acciones">
+          <a class="btn btn-sm" href="/contratos?id_cliente=<%= c.id_cliente %>">Contratos</a>
+          <a class="btn btn-sm" href="/clientes/<%= c.id_cliente %>/editar">Editar</a>
+          <button class="btn btn-sm" data-abrir="dlg-portal" data-api="/api/clientes/<%= c.id_cliente %>/password" data-valores='<%= JSON.stringify({ nombre: c.nombre_cliente }) %>'>Portal</button>
+          <button class="btn btn-sm btn-peligro" data-accion="/api/clientes/<%= c.id_cliente %>" data-metodo="DELETE" data-confirmar="Se eliminara el cliente <%= c.nombre_cliente %>. Si tiene contratos, equipos o facturas no se podra eliminar; en ese caso cambie su estado a Inactivo.">Eliminar</button>
+        </td>
+        <% } %>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table></div>
+</div>
+<dialog id="dlg-portal">
+  <div class="dialogo-cabeza"><h2>Acceso al portal de clientes</h2><button class="cerrar" type="button" data-cerrar>&times;</button></div>
+  <div class="dialogo-cuerpo">
+    <form data-api="" data-metodo="PUT">
+      <div class="aviso error aviso-formulario oculto" role="alert"></div>
+      <p style="margin-bottom:.8rem">Asigne la contrasena del portal para <strong data-texto="nombre"></strong>. El usuario es el correo registrado del cliente.</p>
+      <div class="campo"><label class="requerido" for="nueva-portal">Contrasena</label><input type="password" id="nueva-portal" name="nueva" minlength="8" required autocomplete="new-password"><small>Minimo 8 caracteres con mayuscula, minuscula y numero.</small></div>
+      <div class="pie-formulario"><button class="btn" type="button" data-cerrar>Cancelar</button><button class="btn btn-primario" type="submit">Guardar</button></div>
+    </form>
+  </div>
+</dialog>
+<%- include('../partials/abajo') %>

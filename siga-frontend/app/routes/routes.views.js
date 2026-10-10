@@ -4,6 +4,7 @@ import { ROLES } from '../config/menu.js';
 import { inicio } from '../controllers/controller.inicio.js';
 import * as agricola from '../controllers/controller.agricola.js';
 import * as tecnologico from '../controllers/controller.tecnologico.js';
+import * as admin from '../controllers/controller.administrativo.js';
 
 /**
  * Paginas de los empleados, agrupadas por modulo del sistema.
@@ -35,6 +36,23 @@ router.get(`/equipos/${ID}`, rol(T, G), tecnologico.detalle);        // RF14 a R
 router.get(`/equipos/${ID}/editar`, rol(T), tecnologico.editar);
 
 // ---------- Modulo 3: gestion administrativa ----------
+router.get('/empleados', rol(S, G, SST, I), admin.empleados);        // RF03
+router.get('/empleados/nuevo', soloAdmin, admin.nuevoEmpleado);
+router.get(`/empleados/${ID}/editar`, soloAdmin, admin.editarEmpleado);
+router.get(`/empleados/${ID}/carne`, soloAdmin, admin.carneEmpleado);
+router.get('/clientes', rol(S, G, T), admin.clientes);               // RF01
+router.get('/clientes/nuevo', soloAdmin, admin.nuevoCliente);
+router.get(`/clientes/${ID}/editar`, soloAdmin, admin.editarCliente);
+router.get('/contratos', rol(S, G), admin.contratos);                // RF02
+router.get('/contratos/nuevo', soloAdmin, admin.nuevoContrato);
+router.get(`/contratos/${ID}`, rol(S, G), admin.contrato);
+router.get(`/contratos/${ID}/editar`, soloAdmin, admin.editarContrato);
+router.get('/servicios', rol(S, G), admin.servicios);
+router.get('/servicios/nuevo', soloAdmin, admin.nuevoServicio);
+router.get(`/servicios/${ID}/editar`, soloAdmin, admin.editarServicio);
+router.get('/solicitudes', rol(S, G), admin.solicitudes);            // RF06
+router.get('/auditoria', soloAdmin, admin.auditoria);                // RNF07
+router.get('/respaldo', soloAdmin, admin.respaldo);                  // RF05
 
 // ---------- Modulo 4: gestion de personal ----------
 
