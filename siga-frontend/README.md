@@ -51,7 +51,7 @@ siga-frontend/
 ├── public/
 │   ├── css/siga.css   estilos (adaptados a celular)
 │   ├── js/            siga.js (comun), cola-offline.js, campo.js, taller.js, kiosco.js, factura.js, tablero.js
-│   ├── js/vendor/     Chart.js y html5-qrcode (servidos localmente)
+│   ├── js/vendor/     Chart.js y jsQR (servidos localmente)
 │   ├── sw.js          service worker del modo sin conexion
 │   └── manifest.webmanifest
 ├── tests/             pruebas del servidor (node:test) y recorrido de extremo a extremo (Playwright)

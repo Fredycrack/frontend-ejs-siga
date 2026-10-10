@@ -304,7 +304,12 @@ dialog .cerrar { background: none; border: 0; font-size: 1.4rem; cursor: pointer
 
 /* Lector QR */
 .lector { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.25rem; }
-#lector-video { width: 100%; min-height: 280px; background: #10261a; border-radius: var(--radio); overflow: hidden; }
+#lector-video { position: relative; width: 100%; min-height: 280px; background: #10261a; border-radius: var(--radio); overflow: hidden; }
+#lector-video video { display: block; width: 100%; height: auto; }
+.marco-qr {
+  position: absolute; left: 50%; top: 50%; width: 58%; aspect-ratio: 1; transform: translate(-50%, -50%);
+  border: 3px solid rgba(255, 255, 255, .85); border-radius: 14px; box-shadow: 0 0 0 999px rgba(0, 0, 0, .18); pointer-events: none;
+}
 .resultado-qr { font-size: 1.05rem; text-align: center; padding: 1.5rem 1rem; border-radius: var(--radio); }
 .resultado-qr strong { display: block; font-size: 1.5rem; margin: .3rem 0; }
 

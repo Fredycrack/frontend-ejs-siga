@@ -1,7 +1,7 @@
 /**
  * Encabezados de seguridad de las respuestas (RNF06).
  * La politica de contenido solo permite scripts servidos por SIGA: las
- * librerias de graficas (Chart.js) y del lector QR (html5-qrcode) se
+ * librerias de graficas (Chart.js) y del lector QR (jsQR) se
  * incluyen en public/js/vendor, de modo que tambien funcionan sin internet.
  */
 const POLITICA = [
