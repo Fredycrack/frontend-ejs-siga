@@ -6,6 +6,7 @@ import * as agricola from '../controllers/controller.agricola.js';
 import * as tecnologico from '../controllers/controller.tecnologico.js';
 import * as admin from '../controllers/controller.administrativo.js';
 import * as personal from '../controllers/controller.personal.js';
+import * as inventario from '../controllers/controller.inventario.js';
 
 /**
  * Paginas de los empleados, agrupadas por modulo del sistema.
@@ -67,6 +68,11 @@ router.get(`/tareas/${ID}/editar`, rol(S), personal.editarTarea);
 router.get('/nomina', rol(G), personal.nomina);                      // RF22
 
 // ---------- Modulo 5: inventario ----------
+router.get('/inventario', rol(I, T, S, SST, G), inventario.listar);  // RF24, RF25
+router.get('/inventario/nuevo', rol(I), inventario.nuevo);
+router.get(`/inventario/${ID}`, rol(I, T, S, SST, G), inventario.detalle);
+router.get(`/inventario/${ID}/editar`, rol(I), inventario.editar);
+router.get('/ordenes', rol(I, G), inventario.ordenes);               // RF27, RF28
 
 // ---------- Modulo 6: seguridad y salud en el trabajo ----------
 
