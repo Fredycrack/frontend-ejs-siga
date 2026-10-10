@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { verificarSesion, rol, soloAdmin } from '../middleware/auth.middleware.js';
 import { ROLES } from '../config/menu.js';
 import { inicio } from '../controllers/controller.inicio.js';
+import * as agricola from '../controllers/controller.agricola.js';
 
 /**
  * Paginas de los empleados, agrupadas por modulo del sistema.
@@ -18,6 +19,12 @@ router.get('/inicio', inicio);
 // ---------- Mi trabajo (todos los empleados) ----------
 
 // ---------- Modulo 1: servicios agricolas ----------
+router.get('/mis-labores', rol(C), agricola.misLabores);             // RF08 a RF10, RF12
+router.get('/labores', rol(S, G), agricola.listar);
+router.get('/labores/avance', rol(S, G), agricola.avance);           // RF11
+router.get('/labores/nueva', rol(S), agricola.nueva);                // RF07
+router.get(`/labores/${ID}`, rol(S, G, C), agricola.detalle);
+router.get(`/labores/${ID}/editar`, rol(S), agricola.editar);
 
 // ---------- Modulo 2: servicios tecnologicos ----------
 

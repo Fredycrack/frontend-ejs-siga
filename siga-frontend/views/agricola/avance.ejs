@@ -1,0 +1,21 @@
+<%- include('../partials/arriba', { titulo: 'Avance por contrato' }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Avance de las labores por contrato',
+  subtitulo: 'RF11: estado de ejecucion de las labores programadas en cada contrato.',
+  migas: [['Labores', '/labores']]
+}) %>
+<div class="indicadores">
+  <% ['Programada', 'En proceso', 'Finalizada', 'Cancelada'].forEach(function (e, i) {
+       const fila = resumen.por_estado.find(function (x) { return x.estado === e; }); %>
+    <a class="indicador <%= ['ambar', 'azul', '', 'rojo'][i] %>" href="/labores?estado=<%= encodeURIComponent(e) %>"><div class="nombre"><%= e %>s</div><div class="valor"><%= fila ? fila.total : 0 %></div></a>
+  <% }) %>
+</div>
+<div class="tarjeta">
+  <form class="filtros" method="GET">
+    <div class="campo"><label for="desde">Desde</label><input type="date" id="desde" name="desde" value="<%= q.desde || '' %>"></div>
+    <div class="campo"><label for="hasta">Hasta</label><input type="date" id="hasta" name="hasta" value="<%= q.hasta || '' %>"></div>
+    <button class="btn" type="submit">Aplicar</button>
+  </form>
+  <%- include('_avance', { filas: resumen.por_contrato }) %>
+</div>
+<%- include('../partials/abajo') %>

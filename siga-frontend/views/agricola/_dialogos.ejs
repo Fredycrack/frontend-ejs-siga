@@ -1,0 +1,43 @@
+<dialog id="dlg-evidencia">
+  <div class="dialogo-cabeza"><h2>Agregar evidencia</h2><button class="cerrar" type="button" data-cerrar aria-label="Cerrar">&times;</button></div>
+  <div class="dialogo-cuerpo">
+    <form id="form-evidencia">
+      <div class="aviso error aviso-formulario oculto" role="alert"></div>
+      <div class="campo">
+        <label class="requerido" for="foto">Fotografia del avance</label>
+        <input type="file" id="foto" accept="image/*" capture="environment" required>
+        <small>La foto se reduce automaticamente para enviarla aun con poca senal.</small>
+        <img id="vista-foto" class="vista-previa oculto" alt="Vista previa de la evidencia">
+      </div>
+      <div class="campo" style="margin-top:.8rem">
+        <label for="comentario">Comentario</label>
+        <input id="comentario" name="comentario" maxlength="300" placeholder="Ej.: camas 1 a 20 terminadas">
+      </div>
+      <div class="pie-formulario">
+        <button class="btn" type="button" data-cerrar>Cancelar</button>
+        <button class="btn btn-primario" type="submit">Guardar evidencia</button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<dialog id="dlg-finalizar">
+  <div class="dialogo-cabeza"><h2>Registrar finalizacion</h2><button class="cerrar" type="button" data-cerrar aria-label="Cerrar">&times;</button></div>
+  <div class="dialogo-cuerpo">
+    <form id="form-finalizar">
+      <div class="aviso error aviso-formulario oculto" role="alert"></div>
+      <div class="campo">
+        <label class="requerido" for="porcentaje_cumplimiento">Porcentaje de cumplimiento: <output id="valor-porcentaje">100</output> %</label>
+        <input type="range" id="porcentaje_cumplimiento" name="porcentaje_cumplimiento" min="0" max="100" step="5" value="100">
+      </div>
+      <div class="campo" style="margin-top:.8rem">
+        <label class="requerido" for="resultado">Resultado de la labor</label>
+        <textarea id="resultado" name="resultado" maxlength="500" required placeholder="Ej.: se completaron las 40 camas del bloque"></textarea>
+      </div>
+      <div class="pie-formulario">
+        <button class="btn" type="button" data-cerrar>Cancelar</button>
+        <button class="btn btn-primario" type="submit">Finalizar labor</button>
+      </div>
+    </form>
+  </div>
+</dialog>

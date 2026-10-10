@@ -1,0 +1,75 @@
+<% const editando = !!labor.id_labor; const titulo = editando ? 'Editar labor' : 'Programar labor'; %>
+<%- include('../partials/arriba', { titulo: titulo }) %>
+<%- include('../partials/encabezado', {
+  titulo: titulo,
+  subtitulo: editando ? labor.tipo_labor + ' - ' + labor.nombre_cliente : 'RF07: asigne el trabajador, la fecha y la ubicacion de la labor.',
+  migas: [['Labores', '/labores']].concat(editando ? [[labor.tipo_labor, '/labores/' + labor.id_labor]] : [])
+}) %>
+<% if (editando && labor.estado !== 'Programada') { %>
+  <div class="aviso advertencia">La labor esta <%= labor.estado.toLowerCase() %>: solo puede modificarse una labor programada.</div>
+<% } %>
+<form class="tarjeta" data-api="/api/labores<%= editando ? '/' + labor.id_labor : '' %>" data-metodo="<%= editando ? 'PUT' : 'POST' %>" data-volver="/labores/<%= editando ? labor.id_labor : '{id}' %>">
+  <div class="aviso error aviso-formulario oculto" role="alert"></div>
+  <div class="campos">
+    <div class="campo">
+      <label class="requerido" for="id_contrato">Contrato vigente</label>
+      <select id="id_contrato" name="id_contrato" required>
+        <option value="">Seleccione...</option>
+        <% contratos.forEach(function (c) { %><option value="<%= c.id_contrato %>" <%= labor.id_contrato == c.id_contrato ? 'selected' : '' %>><%= c.numero_contrato %> - <%= c.nombre_cliente %></option><% }) %>
+      </select>
+    </div>
+    <div class="campo">
+      <label class="requerido" for="id_servicio">Servicio</label>
+      <select id="id_servicio" name="id_servicio" required data-copiar-texto="tipo_labor">
+        <option value="">Seleccione...</option>
+        <% servicios.forEach(function (s) { %><option value="<%= s.id_servicio %>" <%= labor.id_servicio == s.id_servicio ? 'selected' : '' %>><%= s.nombre_servicio %></option><% }) %>
+      </select>
+    </div>
+    <div class="campo">
+      <label class="requerido" for="tipo_labor">Nombre de la labor</label>
+      <input id="tipo_labor" name="tipo_labor" maxlength="80" required value="<%= labor.tipo_labor || '' %>">
+    </div>
+    <div class="campo">
+      <label class="requerido" for="id_empleado">Trabajador asignado</label>
+      <select id="id_empleado" name="id_empleado" required>
+        <option value="">Seleccione...</option>
+        <% trabajadores.forEach(function (t) { %><option value="<%= t.id_empleado %>" <%= labor.id_empleado == t.id_empleado ? 'selected' : '' %>><%= t.nombre %></option><% }) %>
+      </select>
+      <small>El sistema valida que el trabajador no tenga otra labor a la misma hora.</small>
+    </div>
+    <div class="campo">
+      <label class="requerido" for="fecha_programada">Fecha</label>
+      <input type="date" id="fecha_programada" name="fecha_programada" required value="<%= labor.fecha_programada || '' %>">
+    </div>
+    <div class="campo">
+      <label for="hora_programada">Hora de inicio</label>
+      <input type="time" id="hora_programada" name="hora_programada" value="<%= (labor.hora_programada || '07:00').slice(0, 5) %>">
+    </div>
+    <div class="campo">
+      <label class="requerido" for="ubicacion">Ubicacion (bloque, camas, finca)</label>
+      <input id="ubicacion" name="ubicacion" maxlength="150" required value="<%= labor.ubicacion || '' %>" placeholder="Bloque 3, camas 1 a 40">
+    </div>
+    <div class="campo">
+      <label for="cantidad">Cantidad (segun la unidad del servicio)</label>
+      <input type="number" id="cantidad" name="cantidad" min="0.01" step="0.01" value="<%= labor.cantidad || 1 %>">
+    </div>
+    <div class="campo">
+      <label for="latitud">Latitud</label>
+      <input type="number" id="latitud" name="latitud" step="0.0000001" min="-90" max="90" value="<%= labor.latitud === null || labor.latitud === undefined ? '' : labor.latitud %>">
+    </div>
+    <div class="campo">
+      <label for="longitud">Longitud</label>
+      <input type="number" id="longitud" name="longitud" step="0.0000001" min="-180" max="180" value="<%= labor.longitud === null || labor.longitud === undefined ? '' : labor.longitud %>">
+      <small>Con las coordenadas el sistema verifica que el trabajador inicie en el lugar (tolerancia de 500 m). <button type="button" class="enlace" data-gps="latitud,longitud">Usar mi ubicacion actual</button></small>
+    </div>
+    <div class="campo ancho">
+      <label for="descripcion">Instrucciones para el trabajador</label>
+      <textarea id="descripcion" name="descripcion" maxlength="500"><%= labor.descripcion || '' %></textarea>
+    </div>
+  </div>
+  <div class="pie-formulario">
+    <a class="btn" href="<%= editando ? '/labores/' + labor.id_labor : '/labores' %>">Cancelar</a>
+    <button class="btn btn-primario" type="submit"><%= editando ? 'Guardar cambios' : 'Programar labor' %></button>
+  </div>
+</form>
+<%- include('../partials/abajo') %>
