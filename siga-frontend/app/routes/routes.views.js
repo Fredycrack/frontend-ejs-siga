@@ -9,6 +9,7 @@ import * as personal from '../controllers/controller.personal.js';
 import * as inventario from '../controllers/controller.inventario.js';
 import * as sst from '../controllers/controller.sst.js';
 import * as facturacion from '../controllers/controller.facturacion.js';
+import * as reportes from '../controllers/controller.reportes.js';
 
 /**
  * Paginas de los empleados, agrupadas por modulo del sistema.
@@ -95,5 +96,8 @@ router.get(`/facturas/${ID}`, rol(G), facturacion.detalle);          // RF34, RF
 router.get('/cartera', rol(G), facturacion.cartera);
 
 // ---------- Modulo 8: reportes ----------
+router.get('/reportes', rol(G, S, SST, I), reportes.indice);         // RF39
+router.get('/reportes/rentabilidad', rol(G), reportes.rentabilidad); // RF38
+router.get('/reportes/productividad', rol(G, S), reportes.productividad); // RF40
 
 export default router;

@@ -1,0 +1,32 @@
+<% const d = reporte; const r = 'desde=' + d.desde + '&hasta=' + d.hasta + '&agrupar=' + d.agrupar;
+   const t = d.filas.reduce(function (s, x) { s.i += x.ingresos; s.c += x.costos; s.u += x.utilidad; return s; }, { i: 0, c: 0, u: 0 }); %>
+<%- include('../partials/arriba', { titulo: 'Rentabilidad' }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Rentabilidad por ' + d.agrupar, subtitulo: 'RF38: del ' + f.fecha(d.desde) + ' al ' + f.fecha(d.hasta) + '. Costo de mano de obra = salario / 240 por hora trabajada, mas repuestos.',
+  acciones: [{ texto: 'PDF', ruta: '/api/reportes/rentabilidad/pdf?' + r, descargar: true }, { texto: 'Excel', ruta: '/api/reportes/rentabilidad/excel?' + r, descargar: true }]
+}) %>
+<form class="filtros" method="GET">
+  <div class="campo"><label for="agrupar">Agrupar por</label><select id="agrupar" name="agrupar"><option value="cliente">Cliente</option><option value="servicio" <%= d.agrupar === 'servicio' ? 'selected' : '' %>>Servicio</option></select></div>
+  <div class="campo"><label for="desde">Desde</label><input type="date" id="desde" name="desde" value="<%= d.desde %>"></div>
+  <div class="campo"><label for="hasta">Hasta</label><input type="date" id="hasta" name="hasta" value="<%= d.hasta %>"></div>
+  <button class="btn" type="submit">Consultar</button>
+</form>
+<div class="indicadores">
+  <div class="indicador azul"><div class="nombre">Ingresos</div><div class="valor"><%= f.pesos(t.i) %></div></div>
+  <div class="indicador ambar"><div class="nombre">Costos</div><div class="valor"><%= f.pesos(t.c) %></div></div>
+  <div class="indicador"><div class="nombre">Utilidad</div><div class="valor"><%= f.pesos(t.u) %></div><div class="nota">Margen <%= t.i ? f.numero(t.u * 100 / t.i, 1) : 0 %> %</div></div>
+</div>
+<div class="tarjeta">
+  <% if (!d.filas.length) { %><p class="vacio">No hay ingresos ni costos en el periodo.</p><% } else { %>
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th><%= d.agrupar === 'cliente' ? 'Cliente' : 'Servicio' %></th><th class="num">Ingresos</th><th class="num">Costos</th><th class="num">Utilidad</th><th style="width:22%">Margen</th></tr></thead>
+    <tbody><% d.filas.forEach(function (x) { const m = Math.max(0, Math.min(100, x.margen || 0)); %>
+      <tr><td><strong><%= x.grupo %></strong><div class="tenue pequeno"><%= x.tipo || '' %></div></td><td class="num"><%= f.pesos(x.ingresos) %></td><td class="num"><%= f.pesos(x.costos) %></td>
+        <td class="num" style="<%= x.utilidad < 0 ? 'color:var(--rojo)' : '' %>"><%= f.pesos(x.utilidad) %></td>
+        <td><div class="progreso"><span style="width:<%= m %>%;<%= x.margen < 20 ? 'background:#e09a1a' : '' %>"></span></div><div class="tenue pequeno"><%= x.margen === null ? '—' : f.numero(x.margen, 1) + ' %' %></div></td></tr>
+    <% }) %></tbody>
+    <tfoot><tr><td>Total</td><td class="num"><%= f.pesos(t.i) %></td><td class="num"><%= f.pesos(t.c) %></td><td class="num"><%= f.pesos(t.u) %></td><td></td></tr></tfoot>
+  </table></div>
+  <% } %>
+</div>
+<%- include('../partials/abajo') %>
