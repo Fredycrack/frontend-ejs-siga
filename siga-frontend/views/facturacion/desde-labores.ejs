@@ -1,0 +1,41 @@
+<%- include('../partials/arriba', { titulo: 'Facturar labores' }) %>
+<%- include('../partials/encabezado', { titulo: 'Facturar labores de un contrato', subtitulo: 'RF33: genera la factura con las labores finalizadas que aun no se han facturado, valoradas con la tarifa del servicio.', migas: [['Facturas', '/facturas']] }) %>
+<form class="tarjeta filtros" method="GET">
+  <div class="campo" style="min-width:260px"><label for="id_contrato">Contrato</label>
+    <select id="id_contrato" name="id_contrato" required><option value="">Seleccione...</option>
+      <% contratos.forEach(function (k) { %><option value="<%= k.id_contrato %>" <%= String(q.id_contrato) === String(k.id_contrato) ? 'selected' : '' %>><%= k.numero_contrato %> - <%= k.nombre_cliente %> (<%= k.estado %>)</option><% }) %></select></div>
+  <div class="campo"><label for="desde">Labores desde</label><input type="date" id="desde" name="desde" value="<%= q.desde || '' %>"></div>
+  <div class="campo"><label for="hasta">Hasta</label><input type="date" id="hasta" name="hasta" value="<%= q.hasta || '' %>"></div>
+  <button class="btn" type="submit">Ver labores pendientes</button>
+</form>
+<% if (typeof pendientes !== 'undefined') {
+     const subtotal = pendientes.reduce(function (s, l) { return s + Number(l.cantidad) * Number(l.tarifa_base); }, 0); %>
+  <div class="tarjeta">
+    <h2>Labores finalizadas sin facturar (<%= pendientes.length %>)</h2>
+    <% if (!pendientes.length) { %>
+      <p class="vacio">Este contrato no tiene labores pendientes por facturar en el periodo.</p>
+    <% } else { %>
+      <div class="tabla-contenedor"><table>
+        <thead><tr><th>Fecha</th><th>Labor</th><th>Servicio</th><th class="num">Cantidad</th><th class="num">Tarifa</th><th class="num">Valor</th></tr></thead>
+        <tbody><% pendientes.forEach(function (l) { %>
+          <tr><td class="nowrap"><%= f.fecha(l.fecha_programada) %></td><td><a href="/labores/<%= l.id_labor %>"><%= l.tipo_labor %></a><div class="tenue pequeno"><%= l.ubicacion %> &middot; cumplimiento <%= l.porcentaje_cumplimiento %> %</div></td>
+            <td><%= l.nombre_servicio %></td><td class="num"><%= f.numero(l.cantidad, 2) %> <%= l.unidad_medida %></td><td class="num"><%= f.pesos(l.tarifa_base) %></td><td class="num"><%= f.pesos(Number(l.cantidad) * Number(l.tarifa_base)) %></td></tr>
+        <% }) %></tbody>
+        <tfoot><tr><td colspan="5" class="derecha">Subtotal estimado (antes de IVA)</td><td class="num"><%= f.pesos(subtotal) %></td></tr></tfoot>
+      </table></div>
+      <form data-api="/api/facturas/desde-labores" data-metodo="POST" data-volver="/facturas/{id}" style="margin-top:1rem">
+        <div class="aviso error aviso-formulario oculto" role="alert"></div>
+        <input type="hidden" name="id_contrato" value="<%= q.id_contrato %>">
+        <input type="hidden" name="desde" value="<%= q.desde || '' %>" data-omitir-vacio>
+        <input type="hidden" name="hasta" value="<%= q.hasta || '' %>" data-omitir-vacio>
+        <div class="campos campos-3">
+          <div class="campo"><label for="fp">Forma de pago</label><select id="fp" name="forma_pago"><option>Credito 30 dias</option><option>Contado</option><option>Credito 60 dias</option></select></div>
+          <div class="campo"><label for="iva">IVA (%)</label><input type="number" id="iva" name="porcentaje_iva" value="19" min="0" max="100" step="0.01"></div>
+          <div class="campo"><label for="obs">Observaciones</label><input id="obs" name="observaciones" maxlength="300" data-omitir-vacio></div>
+        </div>
+        <div class="pie-formulario"><button class="btn btn-primario" type="submit">Generar factura</button></div>
+      </form>
+    <% } %>
+  </div>
+<% } %>
+<%- include('../partials/abajo') %>

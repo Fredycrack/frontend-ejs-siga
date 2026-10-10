@@ -8,6 +8,7 @@ import * as admin from '../controllers/controller.administrativo.js';
 import * as personal from '../controllers/controller.personal.js';
 import * as inventario from '../controllers/controller.inventario.js';
 import * as sst from '../controllers/controller.sst.js';
+import * as facturacion from '../controllers/controller.facturacion.js';
 
 /**
  * Paginas de los empleados, agrupadas por modulo del sistema.
@@ -87,6 +88,11 @@ router.get(`/incidentes/${ID}`, rol(SST, S, G), sst.incidente);
 router.get('/sst/indicadores', rol(SST, G), sst.indicadores);        // RF32
 
 // ---------- Modulo 7: facturacion ----------
+router.get('/facturas', rol(G), facturacion.listar);                 // RF33
+router.get('/facturas/nueva', soloAdmin, facturacion.nueva);
+router.get('/facturas/desde-labores', soloAdmin, facturacion.desdeLabores);
+router.get(`/facturas/${ID}`, rol(G), facturacion.detalle);          // RF34, RF35
+router.get('/cartera', rol(G), facturacion.cartera);
 
 // ---------- Modulo 8: reportes ----------
 
