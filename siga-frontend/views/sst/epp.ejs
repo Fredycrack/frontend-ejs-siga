@@ -1,0 +1,50 @@
+<%- include('../partials/arriba', { titulo: 'Entregas de EPP' }) %>
+<%- include('../partials/encabezado', { titulo: 'Entregas de elementos de proteccion personal', subtitulo: 'RF30: registro de la dotacion entregada a cada trabajador y su fecha de reposicion.' }) %>
+<div class="tarjeta">
+  <div class="tarjeta-cabeza">
+    <form class="filtros" method="GET" style="margin:0">
+      <div class="campo"><label for="f-emp">Trabajador</label>
+        <select id="f-emp" name="id_empleado" data-auto><option value="">Todos</option>
+          <% empleados.forEach(function (e) { %><option value="<%= e.id_empleado %>" <%= String(q.id_empleado) === String(e.id_empleado) ? 'selected' : '' %>><%= e.nombre %></option><% }) %></select></div>
+    </form>
+    <% if (es('Responsable SST')) { %><button class="btn btn-primario" data-abrir="dlg-epp" data-valores='<%= JSON.stringify({ fecha_entrega: f.hoy(), fecha_reposicion: f.sumarDias(30), cantidad: 1 }) %>'>Registrar entrega</button><% } %>
+  </div>
+  <% if (!entregas.length) { %><p class="vacio">No hay entregas registradas.</p><% } else { %>
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Trabajador</th><th>Elemento</th><th class="num">Cantidad</th><th>Entrega</th><th>Reposicion</th><th>Entrego</th><% if (es('Responsable SST')) { %><th></th><% } %></tr></thead>
+    <tbody><% entregas.forEach(function (e) { %>
+      <tr class="<%= e.reposicion_proxima ? 'alerta-fila' : '' %>">
+        <td><%= e.empleado %></td><td><%= e.elemento %><% if (e.observaciones) { %><div class="tenue pequeno"><%= e.observaciones %></div><% } %></td>
+        <td class="num"><%= e.cantidad %></td><td class="nowrap"><%= f.fecha(e.fecha_entrega) %></td>
+        <td class="nowrap"><%= f.fecha(e.fecha_reposicion) %><% if (e.reposicion_proxima) { %><div><span class="etiqueta ambar">Reponer pronto</span></div><% } %></td>
+        <td><%= e.responsable || '—' %></td>
+        <% if (es('Responsable SST')) { %><td class="celda-acciones"><button class="btn btn-sm btn-peligro" data-accion="/api/epp/<%= e.id_entrega %>" data-metodo="DELETE" data-confirmar="Se eliminara el registro de la entrega (el inventario no se modifica).">Eliminar</button></td><% } %>
+      </tr>
+    <% }) %></tbody>
+  </table></div>
+  <% } %>
+</div>
+<dialog id="dlg-epp">
+  <div class="dialogo-cabeza"><h2>Registrar entrega de EPP</h2><button class="cerrar" type="button" data-cerrar>&times;</button></div>
+  <div class="dialogo-cuerpo">
+    <form data-api="/api/epp" data-metodo="POST">
+      <div class="aviso error aviso-formulario oculto" role="alert"></div>
+      <div class="campos">
+        <div class="campo ancho"><label class="requerido" for="e-emp">Trabajador</label>
+          <select id="e-emp" name="id_empleado" required><option value="">Seleccione...</option>
+            <% empleados.forEach(function (e) { %><option value="<%= e.id_empleado %>"><%= e.nombre %> - <%= e.rol %></option><% }) %></select></div>
+        <div class="campo ancho"><label for="e-inv">Elemento del inventario</label>
+          <select id="e-inv" name="id_inventario" data-omitir-vacio><option value="">Otro (escribirlo abajo)</option>
+            <% elementos.forEach(function (p) { %><option value="<%= p.id_inventario %>"><%= p.nombre_producto %> (disponibles: <%= f.numero(p.cantidad_disponible) %>)</option><% }) %></select>
+          <small>Si elige un elemento del inventario, la entrega se descuenta de las existencias.</small></div>
+        <div class="campo ancho"><label for="e-elem">Elemento (si no esta en el inventario)</label><input id="e-elem" name="elemento" maxlength="100" data-omitir-vacio></div>
+        <div class="campo"><label class="requerido" for="e-cant">Cantidad</label><input type="number" id="e-cant" name="cantidad" min="1" step="1" required></div>
+        <div class="campo"><label class="requerido" for="e-fe">Fecha de entrega</label><input type="date" id="e-fe" name="fecha_entrega" required></div>
+        <div class="campo"><label for="e-fr">Fecha de reposicion</label><input type="date" id="e-fr" name="fecha_reposicion" data-omitir-vacio></div>
+        <div class="campo"><label for="e-obs">Observaciones</label><input id="e-obs" name="observaciones" maxlength="300"></div>
+      </div>
+      <div class="pie-formulario"><button class="btn" type="button" data-cerrar>Cancelar</button><button class="btn btn-primario" type="submit">Registrar entrega</button></div>
+    </form>
+  </div>
+</dialog>
+<%- include('../partials/abajo') %>

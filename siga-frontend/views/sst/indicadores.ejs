@@ -1,0 +1,44 @@
+<% const d = datos; const rango = 'desde=' + d.desde + '&hasta=' + d.hasta; %>
+<%- include('../partials/arriba', { titulo: 'Indicadores SST' }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Indicadores de seguridad y salud en el trabajo',
+  subtitulo: 'RF32: indicadores minimos de la Resolucion 0312 de 2019, del ' + f.fecha(d.desde) + ' al ' + f.fecha(d.hasta) + '.',
+  acciones: [{ texto: 'Exportar PDF', ruta: '/api/reportes/sst/pdf?' + rango, descargar: true }, { texto: 'Exportar Excel', ruta: '/api/reportes/sst/excel?' + rango, descargar: true }]
+}) %>
+<form class="filtros" method="GET">
+  <div class="campo"><label for="desde">Desde</label><input type="date" id="desde" name="desde" value="<%= d.desde %>"></div>
+  <div class="campo"><label for="hasta">Hasta</label><input type="date" id="hasta" name="hasta" value="<%= d.hasta %>"></div>
+  <button class="btn" type="submit">Calcular</button>
+</form>
+<div class="indicadores">
+  <div class="indicador rojo"><div class="nombre">Frecuencia de accidentalidad</div><div class="valor"><%= f.numero(d.indice_frecuencia, 2) %> %</div><div class="nota">Accidentes / trabajadores x 100</div></div>
+  <div class="indicador ambar"><div class="nombre">Severidad de accidentalidad</div><div class="valor"><%= f.numero(d.indice_severidad, 2) %> %</div><div class="nota">Dias perdidos / trabajadores x 100</div></div>
+  <div class="indicador"><div class="nombre">Proporcion de accidentes mortales</div><div class="valor"><%= f.numero(d.proporcion_mortalidad, 2) %> %</div></div>
+  <div class="indicador azul"><div class="nombre">Cobertura de capacitacion</div><div class="valor"><%= d.cobertura_capacitacion === null ? 'Sin datos' : f.numero(d.cobertura_capacitacion, 1) + ' %' %></div><div class="nota"><%= d.capacitaciones_realizadas %> realizada(s)</div></div>
+</div>
+<div class="rejilla rejilla-2-1">
+  <div class="tarjeta">
+    <h2>Eventos del periodo</h2>
+    <% if (!d.eventos.length) { %><p class="vacio">No hubo eventos en el periodo.</p><% } else { %>
+    <div class="tabla-contenedor"><table>
+      <thead><tr><th>Tipo</th><th>Fecha</th><th>Lugar</th><th>Trabajador</th><th class="num">Dias</th><th>ARL</th><th>Estado</th></tr></thead>
+      <tbody><% d.eventos.forEach(function (e) { %>
+        <tr><td><%- include('../partials/estado', { valor: e.tipo }) %></td><td class="nowrap"><%= f.fecha(e.fecha_evento) %></td><td><%= e.lugar %></td><td><%= e.empleado || '—' %></td><td class="num"><%= e.dias_incapacidad %></td><td><%= e.reportado_arl %></td><td><%- include('../partials/estado', { valor: e.estado }) %></td></tr>
+      <% }) %></tbody>
+    </table></div>
+    <% } %>
+  </div>
+  <div class="tarjeta">
+    <h2>Datos base</h2>
+    <dl class="ficha">
+      <dt>Trabajadores activos</dt><dd><%= d.trabajadores %></dd>
+      <dt>Accidentes</dt><dd><%= d.accidentes %></dd>
+      <dt>Incidentes</dt><dd><%= d.incidentes %></dd>
+      <dt>Dias perdidos</dt><dd><%= d.dias_perdidos %></dd>
+      <dt>Accidentes mortales</dt><dd><%= d.mortales %></dd>
+      <dt>Reportados a la ARL</dt><dd><%= d.reportados_arl %></dd>
+      <dt>Entregas de EPP</dt><dd><%= d.entregas_epp %> (<%= d.elementos_epp %> elementos)</dd>
+    </dl>
+  </div>
+</div>
+<%- include('../partials/abajo') %>

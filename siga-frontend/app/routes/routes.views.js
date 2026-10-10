@@ -7,6 +7,7 @@ import * as tecnologico from '../controllers/controller.tecnologico.js';
 import * as admin from '../controllers/controller.administrativo.js';
 import * as personal from '../controllers/controller.personal.js';
 import * as inventario from '../controllers/controller.inventario.js';
+import * as sst from '../controllers/controller.sst.js';
 
 /**
  * Paginas de los empleados, agrupadas por modulo del sistema.
@@ -75,6 +76,15 @@ router.get(`/inventario/${ID}/editar`, rol(I), inventario.editar);
 router.get('/ordenes', rol(I, G), inventario.ordenes);               // RF27, RF28
 
 // ---------- Modulo 6: seguridad y salud en el trabajo ----------
+router.get('/capacitaciones', rol(SST, S, G), sst.capacitaciones);   // RF29
+router.get('/capacitaciones/nueva', rol(SST), sst.nuevaCapacitacion);
+router.get(`/capacitaciones/${ID}`, rol(SST, S, G), sst.capacitacion);
+router.get(`/capacitaciones/${ID}/editar`, rol(SST), sst.editarCapacitacion);
+router.get('/epp', rol(SST, S, G), sst.epp);                         // RF30
+router.get('/incidentes', rol(SST, S, G), sst.incidentes);           // RF31
+router.get('/incidentes/nuevo', rol(SST, S), sst.nuevoIncidente);
+router.get(`/incidentes/${ID}`, rol(SST, S, G), sst.incidente);
+router.get('/sst/indicadores', rol(SST, G), sst.indicadores);        // RF32
 
 // ---------- Modulo 7: facturacion ----------
 
