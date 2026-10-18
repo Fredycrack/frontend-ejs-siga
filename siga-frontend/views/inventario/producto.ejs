@@ -1,0 +1,32 @@
+<% const p = producto; %>
+<%- include('../partials/arriba', { titulo: p.nombre_producto }) %>
+<%- include('../partials/encabezado', {
+  titulo: p.nombre_producto, subtitulo: p.codigo_producto + ' - ' + p.categoria, migas: [['Inventario', '/inventario']],
+  acciones: es('Jefe de Inventario') ? [{ texto: 'Editar', ruta: '/inventario/' + p.id_inventario + '/editar' }] : []
+}) %>
+<div class="indicadores">
+  <div class="indicador <%= Number(p.bajo_minimo) ? 'rojo' : '' %>"><div class="nombre">Disponible</div><div class="valor"><%= f.numero(p.cantidad_disponible, 2) %> <%= p.unidad %></div><div class="nota">Minimo: <%= f.numero(p.cantidad_minima, 2) %></div></div>
+  <div class="indicador azul"><div class="nombre">Precio unitario</div><div class="valor"><%= f.pesos(p.precio_unitario) %></div><div class="nota">Valor en bodega: <%= f.pesos(Number(p.precio_unitario) * Number(p.cantidad_disponible)) %></div></div>
+  <div class="indicador"><div class="nombre">Proveedor</div><div class="valor" style="font-size:1.05rem;white-space:normal"><%= p.proveedor || '—' %></div><div class="nota"><%= p.ubicacion_almacen || '' %></div></div>
+</div>
+<% if (Number(p.bajo_minimo)) { %><div class="aviso advertencia">El producto esta en el stock minimo o por debajo. <a href="/ordenes">Revise las ordenes de compra</a>.</div><% } %>
+<div class="tarjeta">
+  <div class="tarjeta-cabeza"><h2>Movimientos</h2>
+    <div class="acciones">
+      <% const datos = { producto: p.nombre_producto, disponible: f.numero(p.cantidad_disponible, 2) + ' ' + p.unidad }; %>
+      <% if (es('Jefe de Inventario')) { %><button class="btn btn-sm" data-abrir="dlg-movimiento" data-api="/api/inventario/<%= p.id_inventario %>/ingreso" data-valores='<%= JSON.stringify(Object.assign({ titulo: "Registrar ingreso" }, datos)) %>'>Registrar ingreso</button><% } %>
+      <% if (es('Jefe de Inventario', 'Tecnico Electronico', 'Supervisor')) { %><button class="btn btn-sm" data-abrir="dlg-movimiento" data-api="/api/inventario/<%= p.id_inventario %>/consumo" data-valores='<%= JSON.stringify(Object.assign({ titulo: "Registrar consumo" }, datos)) %>'>Registrar consumo</button><% } %>
+    </div>
+  </div>
+  <% if (!p.movimientos.length) { %><p class="vacio">Sin movimientos registrados.</p><% } else { %>
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Fecha</th><th>Tipo</th><th class="num">Cantidad</th><th>Referencia</th><th>Registro</th></tr></thead>
+    <tbody><% p.movimientos.forEach(function (m) { %>
+      <tr><td class="nowrap"><%= f.fechaHora(m.fecha) %></td><td><span class="etiqueta <%= m.tipo === 'Ingreso' ? 'verde' : (m.tipo === 'Consumo' ? 'azul' : 'gris') %>"><%= m.tipo %></span></td>
+        <td class="num"><%= m.tipo === 'Consumo' ? '-' : '+' %><%= f.numero(m.cantidad, 2) %></td><td><%= m.referencia || '—' %></td><td><%= m.empleado || '—' %></td></tr>
+    <% }) %></tbody>
+  </table></div>
+  <% } %>
+</div>
+<%- include('_movimiento') %>
+<%- include('../partials/abajo') %>

@@ -1,0 +1,29 @@
+<%- include('../partials/arriba', { titulo: 'Labores agricolas' }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Labores agricolas',
+  subtitulo: 'Programacion y seguimiento de las labores de cultivo en las fincas de los clientes.',
+  acciones: es('Supervisor') ? [{ texto: 'Avance por contrato', ruta: '/labores/avance' }, { texto: 'Programar labor', ruta: '/labores/nueva', clase: 'btn-primario' }] : [{ texto: 'Avance por contrato', ruta: '/labores/avance' }]
+}) %>
+<div class="tarjeta">
+  <form class="filtros" method="GET" action="/labores">
+    <div class="campo"><label for="f-estado">Estado</label>
+      <select id="f-estado" name="estado" data-auto><option value="">Todos</option>
+        <% ['Programada', 'En proceso', 'Finalizada', 'Cancelada'].forEach(function (e) { %><option <%= q.estado === e ? 'selected' : '' %>><%= e %></option><% }) %>
+      </select></div>
+    <div class="campo"><label for="f-contrato">Contrato</label>
+      <select id="f-contrato" name="id_contrato" data-auto><option value="">Todos</option>
+        <% contratos.forEach(function (c) { %><option value="<%= c.id_contrato %>" <%= String(q.id_contrato) === String(c.id_contrato) ? 'selected' : '' %>><%= c.numero_contrato %> - <%= c.nombre_cliente %></option><% }) %>
+      </select></div>
+    <div class="campo"><label for="f-trabajador">Trabajador</label>
+      <select id="f-trabajador" name="id_empleado" data-auto><option value="">Todos</option>
+        <% trabajadores.forEach(function (t) { %><option value="<%= t.id_empleado %>" <%= String(q.id_empleado) === String(t.id_empleado) ? 'selected' : '' %>><%= t.nombre %></option><% }) %>
+      </select></div>
+    <div class="campo"><label for="f-desde">Desde</label><input type="date" id="f-desde" name="desde" value="<%= q.desde || '' %>"></div>
+    <div class="campo"><label for="f-hasta">Hasta</label><input type="date" id="f-hasta" name="hasta" value="<%= q.hasta || '' %>"></div>
+    <button class="btn" type="submit">Filtrar</button>
+    <% if (Object.keys(q).length) { %><a class="btn" href="/labores">Limpiar</a><% } %>
+  </form>
+  <%- include('_tabla', { labores: labores }) %>
+  <p class="tenue pequeno" style="margin-top:.75rem"><%= labores.length %> labor(es)</p>
+</div>
+<%- include('../partials/abajo') %>

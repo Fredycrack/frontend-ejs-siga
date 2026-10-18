@@ -1,0 +1,23 @@
+<%- include('../partials/arriba', { titulo: 'Catalogo de servicios' }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Catalogo de servicios',
+  subtitulo: 'Servicios agricolas y tecnologicos con su tarifa base, usada para facturar.',
+  acciones: es() ? [{ texto: 'Nuevo servicio', ruta: '/servicios/nuevo', clase: 'btn-primario' }] : []
+}) %>
+<div class="tarjeta">
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Servicio</th><th>Tipo</th><th>Unidad</th><th class="num">Tarifa</th><th>Estado</th><% if (es()) { %><th></th><% } %></tr></thead>
+    <tbody>
+    <% servicios.forEach(function (s) { %>
+      <tr>
+        <td><strong><%= s.nombre_servicio %></strong><div class="tenue pequeno"><%= s.descripcion || '' %></div></td>
+        <td><%= s.tipo_servicio %></td><td><%= s.unidad_medida %></td>
+        <td class="num"><%= f.pesos(s.tarifa_base) %></td>
+        <td><%- include('../partials/estado', { valor: s.estado }) %></td>
+        <% if (es()) { %><td class="celda-acciones"><a class="btn btn-sm" href="/servicios/<%= s.id_servicio %>/editar">Editar</a></td><% } %>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table></div>
+</div>
+<%- include('../partials/abajo') %>

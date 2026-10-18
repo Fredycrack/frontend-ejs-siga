@@ -1,0 +1,43 @@
+<%- include('../partials/arriba', { titulo: 'Nomina' }) %>
+<%- include('../partials/encabezado', { titulo: 'Nomina', subtitulo: 'RF22: liquidacion por periodo con asistencia y productividad.' }) %>
+<div class="rejilla rejilla-2-1">
+  <div class="tarjeta">
+    <h2>Periodos liquidados</h2>
+    <% if (!periodos.length) { %><p class="vacio">Aun no se ha calculado ninguna nomina.</p><% } else { %>
+    <div class="tabla-contenedor"><table>
+      <thead><tr><th>Periodo</th><th class="num">Empleados</th><th class="num">Total</th><th></th></tr></thead>
+      <tbody><% periodos.forEach(function (p) { const activo = q.periodo_inicio === p.periodo_inicio && q.periodo_fin === p.periodo_fin; %>
+        <tr class="<%= activo ? 'alerta-fila' : '' %>"><td><%= f.fecha(p.periodo_inicio) %> a <%= f.fecha(p.periodo_fin) %></td><td class="num"><%= p.empleados %></td><td class="num"><%= f.pesos(p.total) %></td>
+          <td class="celda-acciones"><a class="btn btn-sm" href="/nomina?periodo_inicio=<%= p.periodo_inicio %>&periodo_fin=<%= p.periodo_fin %>">Ver detalle</a></td></tr>
+      <% }) %></tbody>
+    </table></div>
+    <% } %>
+  </div>
+  <% if (es()) { %>
+  <form class="tarjeta" data-api="/api/nomina/calcular" data-metodo="POST" data-volver="/nomina?periodo_inicio={periodo_inicio}&periodo_fin={periodo_fin}" data-confirmar="Se calculara la nomina de todos los empleados activos. Si el periodo ya estaba liquidado, se reemplaza.">
+    <h2>Calcular nomina</h2>
+    <div class="aviso error aviso-formulario oculto" role="alert"></div>
+    <div class="campo"><label class="requerido" for="pi">Inicio del periodo</label><input type="date" id="pi" name="periodo_inicio" required value="<%= sugerido.inicio %>"></div>
+    <div class="campo" style="margin-top:.8rem"><label class="requerido" for="pf">Fin del periodo</label><input type="date" id="pf" name="periodo_fin" required value="<%= sugerido.fin %>"></div>
+    <p class="tenue pequeno" style="margin-top:.8rem">Valor del dia = salario / 30 por cada dia con asistencia. Bonificacion: 1 % por labor con cumplimiento de 90 % o mas y 0,5 % por tarea completada a tiempo (tope 10 %). Deducciones: salud 4 % y pension 4 %.</p>
+    <div class="pie-formulario"><button class="btn btn-primario" type="submit">Calcular</button></div>
+  </form>
+  <% } %>
+</div>
+<% if (typeof liquidaciones !== 'undefined') { const t = liquidaciones.reduce(function (s, l) { s.v += Number(l.valor_dias); s.b += Number(l.bonificacion); s.d += Number(l.deducciones); s.t += Number(l.total); return s; }, { v: 0, b: 0, d: 0, t: 0 }); %>
+  <div class="tarjeta">
+    <div class="tarjeta-cabeza"><h2>Liquidacion del <%= f.fecha(q.periodo_inicio) %> al <%= f.fecha(q.periodo_fin) %></h2><button class="btn btn-sm no-imprimir" type="button" data-imprimir>Imprimir</button></div>
+    <div class="tabla-contenedor"><table class="tabla-compacta">
+      <thead><tr><th>Empleado</th><th class="num">Dias</th><th class="num">Horas</th><th class="num">Salario base</th><th class="num">Valor dias</th><th class="num">Labores / tareas</th><th class="num">Bonificacion</th><th class="num">Deducciones</th><th class="num">Total</th></tr></thead>
+      <tbody><% liquidaciones.forEach(function (l) { %>
+        <tr><td><strong><%= l.nombre %></strong><div class="tenue pequeno"><%= l.rol %></div></td>
+          <td class="num"><%= l.dias_trabajados %>/<%= l.dias_laborables %></td><td class="num"><%= f.numero(l.horas_trabajadas, 1) %></td>
+          <td class="num"><%= f.pesos(l.salario_base) %></td><td class="num"><%= f.pesos(l.valor_dias) %></td>
+          <td class="num"><%= l.labores_finalizadas %> / <%= l.tareas_completadas %></td><td class="num"><%= f.pesos(l.bonificacion) %></td>
+          <td class="num">- <%= f.pesos(l.deducciones) %></td><td class="num"><strong><%= f.pesos(l.total) %></strong></td></tr>
+      <% }) %></tbody>
+      <tfoot><tr><td colspan="4">Total</td><td class="num"><%= f.pesos(t.v) %></td><td></td><td class="num"><%= f.pesos(t.b) %></td><td class="num">- <%= f.pesos(t.d) %></td><td class="num"><%= f.pesos(t.t) %></td></tr></tfoot>
+    </table></div>
+  </div>
+<% } %>
+<%- include('../partials/abajo') %>

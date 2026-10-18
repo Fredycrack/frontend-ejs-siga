@@ -1,0 +1,30 @@
+<% if (!labores.length) { %>
+  <p class="vacio">No hay labores para mostrar.</p>
+<% } else { %>
+<div class="tabla-contenedor"><table>
+  <thead><tr>
+    <th>Labor</th>
+    <% if (typeof compacta === 'undefined' || !compacta) { %><th>Cliente / contrato</th><th>Fecha</th><% } else { %><th>Hora</th><% } %>
+    <th>Trabajador</th><th>Estado</th>
+    <% if (typeof compacta === 'undefined' || !compacta) { %><th class="num">Cumplimiento</th><% } %>
+  </tr></thead>
+  <tbody>
+  <% labores.forEach(function (l) { %>
+    <tr>
+      <td><a href="/labores/<%= l.id_labor %>"><strong><%= l.tipo_labor %></strong></a><div class="tenue pequeno"><%= l.ubicacion %></div></td>
+      <% if (typeof compacta === 'undefined' || !compacta) { %>
+        <td><%= l.nombre_cliente %><div class="tenue pequeno"><%= l.numero_contrato %></div></td>
+        <td class="nowrap"><%= f.fecha(l.fecha_programada) %><div class="tenue pequeno"><%= f.hora(l.hora_programada) %></div></td>
+      <% } else { %>
+        <td class="nowrap"><%= f.hora(l.hora_programada) %></td>
+      <% } %>
+      <td><%= l.empleado %></td>
+      <td><%- include('../partials/estado', { valor: l.estado }) %><% if (l.registrada_offline) { %><div class="tenue pequeno">Registrada sin conexion</div><% } %></td>
+      <% if (typeof compacta === 'undefined' || !compacta) { %>
+        <td class="num"><%= l.porcentaje_cumplimiento === null ? '—' : l.porcentaje_cumplimiento + ' %' %></td>
+      <% } %>
+    </tr>
+  <% }) %>
+  </tbody>
+</table></div>
+<% } %>

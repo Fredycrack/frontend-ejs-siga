@@ -1,0 +1,31 @@
+<%- include('../partials/arriba', { titulo: 'Solicitar servicio' }) %>
+<%- include('../partials/encabezado', { titulo: 'Solicitar un servicio', subtitulo: 'RF06: indique el servicio, la fecha y el lugar. El supervisor le respondera por este medio.' }) %>
+<div class="rejilla rejilla-2-1">
+  <div class="tarjeta">
+    <h2>Mis solicitudes</h2>
+    <% if (!solicitudes.length) { %><p class="vacio">Aun no ha enviado solicitudes.</p><% } else { %>
+    <div class="tabla-contenedor"><table>
+      <thead><tr><th>Servicio</th><th>Fecha deseada</th><th>Detalle</th><th>Estado</th></tr></thead>
+      <tbody><% solicitudes.forEach(function (s) { %>
+        <tr><td><strong><%= s.nombre_servicio %></strong><div class="tenue pequeno">Enviada el <%= f.fecha(s.fecha_registro) %></div></td><td class="nowrap"><%= f.fecha(s.fecha_deseada) %></td>
+          <td><%= s.ubicacion || '' %><div class="tenue pequeno"><%= s.descripcion || '' %></div><% if (s.respuesta) { %><div class="pequeno"><strong>Respuesta:</strong> <%= s.respuesta %></div><% } %></td>
+          <td><%- include('../partials/estado', { valor: s.estado }) %></td></tr>
+      <% }) %></tbody>
+    </table></div>
+    <% } %>
+  </div>
+  <form class="tarjeta" data-api="/api/portal/solicitudes" data-metodo="POST">
+    <h2>Nueva solicitud</h2>
+    <div class="aviso error aviso-formulario oculto" role="alert"></div>
+    <div class="campo"><label class="requerido" for="s-serv">Servicio</label>
+      <select id="s-serv" name="id_servicio" required><option value="">Seleccione...</option>
+        <% ['Agricola', 'Tecnologico'].forEach(function (t) { %><optgroup label="Servicios <%= t === 'Agricola' ? 'agricolas' : 'tecnologicos' %>">
+          <% servicios.filter(function (s) { return s.tipo_servicio === t; }).forEach(function (s) { %><option value="<%= s.id_servicio %>"><%= s.nombre_servicio %> (<%= f.pesos(s.tarifa_base) %> / <%= s.unidad_medida.toLowerCase() %>)</option><% }) %>
+        </optgroup><% }) %></select></div>
+    <div class="campo" style="margin-top:.8rem"><label class="requerido" for="s-fecha">Fecha deseada</label><input type="date" id="s-fecha" name="fecha_deseada" required min="<%= f.hoy() %>"></div>
+    <div class="campo" style="margin-top:.8rem"><label for="s-ubic">Lugar</label><input id="s-ubic" name="ubicacion" maxlength="150" placeholder="Bloque, finca o direccion"></div>
+    <div class="campo" style="margin-top:.8rem"><label for="s-desc">Descripcion</label><textarea id="s-desc" name="descripcion" maxlength="500" placeholder="Cuentenos que necesita"></textarea></div>
+    <div class="pie-formulario"><button class="btn btn-primario" type="submit">Enviar solicitud</button></div>
+  </form>
+</div>
+<%- include('../partials/abajo') %>

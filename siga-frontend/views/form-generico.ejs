@@ -1,0 +1,5 @@
+<%- include('partials/arriba', { titulo: titulo }) %>
+<%- include('partials/encabezado', { titulo: titulo, subtitulo: typeof subtitulo !== 'undefined' ? subtitulo : '', migas: migas }) %>
+<% if (typeof aviso !== 'undefined' && aviso) { %><div class="aviso info"><%= aviso %></div><% } %>
+<%- include('partials/formulario', { campos: campos, valores: valores, api: api, metodo: metodo, volver: volver, boton: boton, cancelar: cancelar, editando: editando }) %>
+<%- include('partials/abajo') %>

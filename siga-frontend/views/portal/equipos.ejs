@@ -1,0 +1,20 @@
+<%- include('../partials/arriba', { titulo: 'Mis equipos' }) %>
+<%- include('../partials/encabezado', { titulo: 'Mis equipos en reparacion', subtitulo: 'RF17: estado de la reparacion y aprobacion de cotizaciones.' }) %>
+<% if (!equipos.length) { %><div class="tarjeta vacio">No tiene equipos registrados en el taller.</div><% } %>
+<% equipos.forEach(function (e) { %>
+  <div class="tarjeta">
+    <div class="tarjeta-cabeza"><h2><%= e.tipo_equipo %> <%= [e.marca, e.modelo].filter(Boolean).join(' ') %></h2><%- include('../partials/estado', { valor: e.estado }) %></div>
+    <dl class="ficha">
+      <dt>Codigo de seguimiento</dt><dd class="mono"><%= e.codigo_seguimiento %></dd>
+      <dt>Recibido</dt><dd><%= f.fechaHora(e.fecha_recepcion) %></dd>
+      <dt>Problema reportado</dt><dd><%= e.problema_reportado %></dd>
+      <% if (e.diagnostico) { %><dt>Diagnostico</dt><dd><%= e.diagnostico %></dd><% } %>
+      <% if (e.valor_cotizacion !== null) { %><dt>Cotizacion</dt><dd><%= f.pesos(e.valor_cotizacion) %> &middot; <%= e.cotizacion_aprobada ? 'Aprobada' : 'Pendiente de su aprobacion' %></dd><% } %>
+      <% if (e.fecha_entrega) { %><dt>Entregado</dt><dd><%= f.fechaHora(e.fecha_entrega) %></dd><% } %>
+    </dl>
+    <% if (e.valor_cotizacion !== null && !e.cotizacion_aprobada) { %>
+      <div class="pie-formulario"><button class="btn btn-primario" data-accion="/api/portal/equipos/<%= e.id_equipo %>/aprobar-cotizacion" data-metodo="PUT" data-confirmar="Al aprobar, autoriza a AGROSERVICES a realizar la reparacion por <%= f.pesos(e.valor_cotizacion) %>.">Aprobar cotizacion</button></div>
+    <% } %>
+  </div>
+<% }) %>
+<%- include('../partials/abajo') %>

@@ -1,0 +1,30 @@
+<%- include('../partials/arriba', { titulo: 'Mis capacitaciones y EPP' }) %>
+<%- include('../partials/encabezado', { titulo: 'Mis capacitaciones y EPP', subtitulo: 'Capacitaciones de seguridad a las que fue convocado y elementos de proteccion entregados.' }) %>
+<div class="rejilla rejilla-2">
+  <div class="tarjeta">
+    <h2>Capacitaciones</h2>
+    <% if (!capacitaciones.length) { %><p class="vacio">No tiene capacitaciones.</p><% } else { %>
+    <div class="tabla-contenedor"><table>
+      <thead><tr><th>Tema</th><th>Fecha</th><th>Asistencia</th></tr></thead>
+      <tbody><% capacitaciones.forEach(function (c) { %>
+        <tr><td><strong><%= c.tema %></strong><div class="tenue pequeno"><%= c.ubicacion || '' %> &middot; <%= c.instructor || '' %></div></td>
+          <td class="nowrap"><%= f.fecha(c.fecha_capacitacion) %><div class="tenue pequeno"><%= f.hora(c.hora_inicio) %></div></td>
+          <td><% if (c.asistio) { %><span class="etiqueta verde">Asistio</span><div class="mono pequeno"><%= c.certificado %></div><% } else { %><%- include('../partials/estado', { valor: c.estado }) %><% } %></td></tr>
+      <% }) %></tbody>
+    </table></div>
+    <% } %>
+  </div>
+  <div class="tarjeta">
+    <h2>Elementos de proteccion personal</h2>
+    <% if (!epp.length) { %><p class="vacio">No tiene entregas registradas.</p><% } else { %>
+    <div class="tabla-contenedor"><table>
+      <thead><tr><th>Elemento</th><th class="num">Cantidad</th><th>Entrega</th><th>Reposicion</th></tr></thead>
+      <tbody><% epp.forEach(function (e) { %>
+        <tr><td><%= e.elemento %></td><td class="num"><%= e.cantidad %></td><td class="nowrap"><%= f.fecha(e.fecha_entrega) %></td>
+          <td class="nowrap"><%= f.fecha(e.fecha_reposicion) %><% if (e.reposicion_proxima) { %> <span class="etiqueta ambar">Proxima</span><% } %></td></tr>
+      <% }) %></tbody>
+    </table></div>
+    <% } %>
+  </div>
+</div>
+<%- include('../partials/abajo') %>

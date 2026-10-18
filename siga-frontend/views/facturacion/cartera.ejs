@@ -1,0 +1,29 @@
+<%- include('../partials/arriba', { titulo: 'Cartera' }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Estado de cartera', subtitulo: 'RF35: saldos por cliente y facturas vencidas.',
+  acciones: [{ texto: 'Exportar PDF', ruta: '/api/reportes/cartera/pdf', descargar: true }, { texto: 'Exportar Excel', ruta: '/api/reportes/cartera/excel', descargar: true }]
+}) %>
+<% const t = cartera.reduce(function (s, c) { s.f += Number(c.facturado); s.p += Number(c.pagado); s.s += Number(c.saldo); s.v += Number(c.vencido); return s; }, { f: 0, p: 0, s: 0, v: 0 }); %>
+<div class="indicadores">
+  <div class="indicador azul"><div class="nombre">Facturado</div><div class="valor"><%= f.pesos(t.f) %></div></div>
+  <div class="indicador"><div class="nombre">Recaudado</div><div class="valor"><%= f.pesos(t.p) %></div></div>
+  <div class="indicador ambar"><div class="nombre">Saldo por cobrar</div><div class="valor"><%= f.pesos(t.s) %></div></div>
+  <div class="indicador rojo"><div class="nombre">Vencido</div><div class="valor"><%= f.pesos(t.v) %></div></div>
+</div>
+<div class="tarjeta">
+  <h2>Saldos por cliente</h2>
+  <% if (!cartera.length) { %><p class="vacio">No hay facturas.</p><% } else { %>
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Cliente</th><th class="num">Facturas</th><th class="num">Facturado</th><th class="num">Pagado</th><th class="num">Saldo</th><th class="num">Vencido</th></tr></thead>
+    <tbody><% cartera.forEach(function (c) { %>
+      <tr class="<%= Number(c.vencido) > 0 ? 'alerta-fila' : '' %>"><td><a href="/facturas?id_cliente=<%= c.id_cliente %>"><strong><%= c.nombre_cliente %></strong></a><div class="tenue pequeno"><%= c.documento %></div></td>
+        <td class="num"><%= c.facturas %></td><td class="num"><%= f.pesos(c.facturado) %></td><td class="num"><%= f.pesos(c.pagado) %></td><td class="num"><%= f.pesos(c.saldo) %></td><td class="num"><%= f.pesos(c.vencido) %></td></tr>
+    <% }) %></tbody>
+  </table></div>
+  <% } %>
+</div>
+<div class="tarjeta">
+  <h2>Facturas vencidas</h2>
+  <%- include('_tabla', { facturas: vencidas }) %>
+</div>
+<%- include('../partials/abajo') %>

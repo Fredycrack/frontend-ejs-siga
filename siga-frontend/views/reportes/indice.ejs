@@ -1,0 +1,32 @@
+<%- include('../partials/arriba', { titulo: 'Reportes' }) %>
+<%- include('../partials/encabezado', { titulo: 'Exportar reportes', subtitulo: 'RF39: descargue los reportes en PDF (para imprimir o enviar) o en Excel (para analizar).' }) %>
+<%
+  const r = 'desde=' + rango.desde + '&hasta=' + rango.hasta;
+  const reportes = [
+    { id: 'rentabilidad', titulo: 'Rentabilidad por cliente', texto: 'Ingresos facturados, costos de mano de obra y repuestos, utilidad y margen.', roles: ['Gerente'], extra: '&agrupar=cliente' },
+    { id: 'rentabilidad', titulo: 'Rentabilidad por servicio', texto: 'Los mismos valores agrupados por tipo de servicio.', roles: ['Gerente'], extra: '&agrupar=servicio' },
+    { id: 'productividad', titulo: 'Productividad del personal', texto: 'Labores, cumplimiento, horas, tareas y asistencia por empleado.', roles: ['Gerente', 'Supervisor'], extra: '' },
+    { id: 'cartera', titulo: 'Estado de cartera', texto: 'Facturado, pagado, saldo y valor vencido por cliente.', roles: ['Gerente'], extra: '' },
+    { id: 'inventario', titulo: 'Inventario valorizado', texto: 'Existencias, minimos, valor y alertas de cada producto.', roles: ['Gerente', 'Jefe de Inventario'], extra: '' },
+    { id: 'sst', titulo: 'Indicadores SST', texto: 'Indicadores de la Resolucion 0312 de 2019 y eventos del periodo.', roles: ['Gerente', 'Responsable SST'], extra: '' }
+  ].filter(function (x) { return es.apply(null, x.roles); });
+%>
+<form class="filtros" method="GET">
+  <div class="campo"><label for="desde">Desde</label><input type="date" id="desde" name="desde" value="<%= rango.desde %>"></div>
+  <div class="campo"><label for="hasta">Hasta</label><input type="date" id="hasta" name="hasta" value="<%= rango.hasta %>"></div>
+  <button class="btn" type="submit">Aplicar periodo</button>
+  <span class="tenue pequeno">El periodo aplica a rentabilidad, productividad y SST.</span>
+</form>
+<div class="rejilla rejilla-2">
+  <% reportes.forEach(function (x) { %>
+    <div class="tarjeta">
+      <h2><%= x.titulo %></h2>
+      <p class="tenue"><%= x.texto %></p>
+      <div class="pie-formulario" style="justify-content:flex-start">
+        <a class="btn btn-primario" href="/api/reportes/<%= x.id %>/pdf?<%= r + x.extra %>" download>Descargar PDF</a>
+        <a class="btn" href="/api/reportes/<%= x.id %>/excel?<%= r + x.extra %>" download>Descargar Excel</a>
+      </div>
+    </div>
+  <% }) %>
+</div>
+<%- include('../partials/abajo') %>

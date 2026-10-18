@@ -1,0 +1,46 @@
+<%- include('../partials/arriba', { titulo: 'Nueva factura' }) %>
+<%- include('../partials/encabezado', { titulo: 'Nueva factura', subtitulo: 'RF33: factura con items libres o del catalogo de servicios. El IVA y el total se calculan automaticamente.', migas: [['Facturas', '/facturas']] }) %>
+<form class="tarjeta" id="form-factura" data-api="/api/facturas" data-metodo="POST" data-volver="/facturas/{id}">
+  <div class="aviso error aviso-formulario oculto" role="alert"></div>
+  <div class="campos campos-3">
+    <div class="campo"><label class="requerido" for="id_cliente">Cliente</label>
+      <select id="id_cliente" name="id_cliente" required><option value="">Seleccione...</option>
+        <% clientes.forEach(function (c) { %><option value="<%= c.id_cliente %>"><%= c.nombre_cliente %></option><% }) %></select></div>
+    <div class="campo"><label for="id_contrato">Contrato (opcional)</label>
+      <select id="id_contrato" name="id_contrato" data-omitir-vacio><option value="">Sin contrato</option>
+        <% contratos.forEach(function (k) { %><option value="<%= k.id_contrato %>" data-cliente="<%= k.id_cliente %>"><%= k.numero_contrato %></option><% }) %></select></div>
+    <div class="campo"><label for="forma_pago">Forma de pago</label>
+      <select id="forma_pago" name="forma_pago"><option>Credito 30 dias</option><option>Contado</option><option>Credito 60 dias</option></select></div>
+    <div class="campo"><label for="fecha_emision">Fecha de emision</label><input type="date" id="fecha_emision" name="fecha_emision" value="<%= f.hoy() %>" max="<%= f.hoy() %>"></div>
+    <div class="campo"><label for="porcentaje_iva">IVA (%)</label><input type="number" id="porcentaje_iva" name="porcentaje_iva" min="0" max="100" step="0.01" value="19"></div>
+    <div class="campo"><label for="observaciones">Observaciones</label><input id="observaciones" name="observaciones" maxlength="300"></div>
+  </div>
+
+  <h2 style="margin-top:1.5rem">Items</h2>
+  <div class="tabla-contenedor"><table id="items">
+    <thead><tr><th style="width:24%">Servicio</th><th>Descripcion</th><th class="num" style="width:11%">Cantidad</th><th class="num" style="width:15%">Valor unitario</th><th class="num" style="width:14%">Subtotal</th><th></th></tr></thead>
+    <tbody></tbody>
+    <tfoot>
+      <tr><td colspan="4" class="derecha">Subtotal</td><td class="num" id="t-subtotal">$ 0</td><td></td></tr>
+      <tr><td colspan="4" class="derecha">IVA</td><td class="num" id="t-iva">$ 0</td><td></td></tr>
+      <tr><td colspan="4" class="derecha">Total</td><td class="num" id="t-total">$ 0</td><td></td></tr>
+    </tfoot>
+  </table></div>
+  <button class="btn btn-sm" type="button" id="agregar-item" style="margin-top:.6rem">+ Agregar item</button>
+  <template id="fila-item">
+    <tr>
+      <td><select data-campo="id_servicio"><option value="">Item libre</option>
+        <% servicios.forEach(function (s) { %><option value="<%= s.id_servicio %>" data-tarifa="<%= s.tarifa_base %>" data-unidad="<%= s.unidad_medida %>"><%= s.nombre_servicio %></option><% }) %></select></td>
+      <td><input data-campo="descripcion" maxlength="200" required></td>
+      <td><input data-campo="cantidad" type="number" min="0.01" step="0.01" value="1" required></td>
+      <td><input data-campo="valor_unitario" type="number" min="0" step="1" required></td>
+      <td class="num" data-subtotal>$ 0</td>
+      <td><button class="btn btn-sm btn-peligro" type="button" data-quitar aria-label="Quitar item">&times;</button></td>
+    </tr>
+  </template>
+  <div class="pie-formulario">
+    <a class="btn" href="/facturas">Cancelar</a>
+    <button class="btn btn-primario" type="submit">Generar factura</button>
+  </div>
+</form>
+<%- include('../partials/abajo', { scripts: ['/js/factura.js'] }) %>

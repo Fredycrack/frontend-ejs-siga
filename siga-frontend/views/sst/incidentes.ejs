@@ -1,0 +1,32 @@
+<%- include('../partials/arriba', { titulo: 'Incidentes y accidentes' }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Incidentes y accidentes de trabajo',
+  subtitulo: 'RF31: reporte y seguimiento de los eventos hasta su cierre.',
+  acciones: es('Responsable SST', 'Supervisor') ? [{ texto: 'Reportar evento', ruta: '/incidentes/nuevo', clase: 'btn-primario' }] : []
+}) %>
+<div class="tarjeta">
+  <form class="filtros" method="GET">
+    <div class="campo"><label for="f-estado">Estado</label>
+      <select id="f-estado" name="estado" data-auto><option value="">Todos</option>
+        <% ['Abierto', 'En seguimiento', 'Cerrado'].forEach(function (e) { %><option <%= q.estado === e ? 'selected' : '' %>><%= e %></option><% }) %></select></div>
+    <div class="campo"><label for="f-tipo">Tipo</label>
+      <select id="f-tipo" name="tipo" data-auto><option value="">Todos</option>
+        <% ['Incidente', 'Accidente'].forEach(function (e) { %><option <%= q.tipo === e ? 'selected' : '' %>><%= e %></option><% }) %></select></div>
+  </form>
+  <% if (!incidentes.length) { %><p class="vacio">No hay eventos registrados.</p><% } else { %>
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Evento</th><th>Fecha</th><th>Lugar</th><th>Trabajador</th><th>Gravedad</th><th class="num">Dias</th><th>Estado</th></tr></thead>
+    <tbody><% incidentes.forEach(function (i) { %>
+      <tr>
+        <td><a href="/incidentes/<%= i.id_incidente %>"><%- include('../partials/estado', { valor: i.tipo }) %></a><div class="pequeno" style="margin-top:.2rem"><a href="/incidentes/<%= i.id_incidente %>"><%= i.descripcion.length > 70 ? i.descripcion.slice(0, 70) + '...' : i.descripcion %></a></div></td>
+        <td class="nowrap"><%= f.fechaHora(i.fecha_evento) %></td>
+        <td><%= i.lugar %></td><td><%= i.empleado || '—' %></td>
+        <td><%- include('../partials/estado', { valor: i.gravedad }) %></td>
+        <td class="num"><%= i.dias_incapacidad %></td>
+        <td><%- include('../partials/estado', { valor: i.estado }) %><% if (i.reportado_arl) { %><div class="tenue pequeno">Reportado a la ARL</div><% } %></td>
+      </tr>
+    <% }) %></tbody>
+  </table></div>
+  <% } %>
+</div>
+<%- include('../partials/abajo') %>

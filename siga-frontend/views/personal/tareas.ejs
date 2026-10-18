@@ -1,0 +1,42 @@
+<%- include('../partials/arriba', { titulo: 'Tareas' }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Tareas del personal',
+  subtitulo: 'RF20 y RF21: asignacion y seguimiento de tareas.',
+  acciones: es('Supervisor') ? [{ texto: 'Asignar tarea', ruta: '/tareas/nueva', clase: 'btn-primario' }] : []
+}) %>
+<div class="tarjeta">
+  <form class="filtros" method="GET">
+    <div class="campo"><label for="f-estado">Estado</label>
+      <select id="f-estado" name="estado" data-auto><option value="">Todos</option>
+        <% ['Pendiente', 'En proceso', 'Completada'].forEach(function (e) { %><option <%= q.estado === e ? 'selected' : '' %>><%= e %></option><% }) %></select></div>
+    <div class="campo"><label for="f-prioridad">Prioridad</label>
+      <select id="f-prioridad" name="prioridad" data-auto><option value="">Todas</option>
+        <% ['Alta', 'Media', 'Baja'].forEach(function (e) { %><option <%= q.prioridad === e ? 'selected' : '' %>><%= e %></option><% }) %></select></div>
+    <div class="campo"><label for="f-emp">Responsable</label>
+      <select id="f-emp" name="id_empleado" data-auto><option value="">Todos</option>
+        <% empleados.forEach(function (e) { %><option value="<%= e.id_empleado %>" <%= String(q.id_empleado) === String(e.id_empleado) ? 'selected' : '' %>><%= e.nombre %></option><% }) %></select></div>
+  </form>
+  <% if (!tareas.length) { %><p class="vacio">No hay tareas con estos filtros.</p><% } else { %>
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Tarea</th><th>Responsable</th><th>Prioridad</th><th>Plazo</th><th>Estado</th><% if (es('Supervisor')) { %><th></th><% } %></tr></thead>
+    <tbody>
+    <% tareas.forEach(function (t) { %>
+      <tr class="<%= t.vencida ? 'alerta-fila' : '' %>">
+        <td><strong><%= t.titulo %></strong><div class="tenue pequeno"><%= t.descripcion || '' %></div></td>
+        <td><%= t.empleado %><div class="tenue pequeno">Asigno: <%= t.supervisor || '—' %></div></td>
+        <td><%- include('../partials/estado', { valor: t.prioridad }) %></td>
+        <td class="nowrap"><%= f.fecha(t.fecha_inicio) %> a <%= f.fecha(t.fecha_limite) %><% if (t.vencida) { %><div><span class="etiqueta rojo">Vencida</span></div><% } %></td>
+        <td><%- include('../partials/estado', { valor: t.estado }) %><% if (t.fecha_completada) { %><div class="tenue pequeno"><%= f.fechaHora(t.fecha_completada) %></div><% } %></td>
+        <% if (es('Supervisor')) { %>
+          <td class="celda-acciones">
+            <a class="btn btn-sm" href="/tareas/<%= t.id_tarea %>/editar">Editar</a>
+            <button class="btn btn-sm btn-peligro" data-accion="/api/tareas/<%= t.id_tarea %>" data-metodo="DELETE" data-confirmar="Se eliminara la tarea &laquo;<%= t.titulo %>&raquo;.">Eliminar</button>
+          </td>
+        <% } %>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table></div>
+  <% } %>
+</div>
+<%- include('../partials/abajo') %>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= titulo %> | SIGA - AGROSERVICES</title>
+  <meta name="theme-color" content="#2e7d32">
+  <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/css/siga.css">
+</head>
+<body>
+<div class="acceso">
+  <section class="acceso-imagen">
+    <div>
+      <a class="marca" href="/" style="padding:0"><img src="/img/logo.svg" alt=""><div><strong>SIGA</strong><span style="color:#cfe6cb">AGROSERVICES P&amp;D S.A.S.</span></div></a>
+      <h1><%= lema %></h1>
+      <p><%= descripcion %></p>
+      <ul>
+        <% puntos.forEach(function (p) { %><li><%= p %></li><% }) %>
+      </ul>
+    </div>
+    <p class="pie-marca pequeno" style="color:#bcdcb7">Madrid, Cundinamarca &middot; Sistema Integrado de Gestion</p>
+  </section>
+
+  <section class="acceso-formulario">
+    <div class="caja">
+      <h2><%= titulo %></h2>
+      <p class="tenue"><%= instruccion %></p>
+      <form action="<%= accion %>" method="POST">
+        <% if (aviso) { %><div class="aviso advertencia" role="status"><%= aviso %></div><% } %>
+        <% if (error) { %><div class="aviso error" role="alert"><%= error %></div><% } %>
+        <input type="hidden" name="volver" value="<%= volver %>">
+        <div class="campo">
+          <label for="email">Correo electronico</label>
+          <input type="email" id="email" name="email" value="<%= email %>" autocomplete="username" placeholder="<%= ejemplo %>" required autofocus>
+        </div>
+        <div class="campo">
+          <label for="password">Contrasena</label>
+          <input type="password" id="password" name="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn btn-primario btn-grande btn-bloque">Ingresar</button>
+      </form>
+      <div class="acceso-pie">
+        <% enlaces.forEach(function (e) { %><a href="<%= e[1] %>"><%= e[0] %></a><% }) %>
+      </div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

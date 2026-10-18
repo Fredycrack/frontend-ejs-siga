@@ -1,0 +1,49 @@
+<%#
+  Formulario generico a partir de una lista de campos (app/config/formularios.js).
+  Parametros: campos, valores, api, metodo, volver, boton, cancelar, editando
+%>
+<form class="tarjeta" data-api="<%= api %>" data-metodo="<%= metodo %>" data-volver="<%= volver %>">
+  <div class="aviso error aviso-formulario oculto" role="alert"></div>
+  <div class="campos">
+    <% campos.forEach(function (c) {
+         if ((c.soloCrear && editando) || (c.soloEditar && !editando)) return;
+         const id = 'c-' + c.nombre;
+         let v = valores[c.nombre];
+         if (v === null || v === undefined) v = c.defecto !== undefined ? c.defecto : '';
+         if (c.tipo === 'time' && v) v = String(v).slice(0, 5);
+         if (c.tipo === 'datetime-local' && v) v = String(v).slice(0, 16).replace(' ', 'T'); %>
+      <div class="campo <%= c.ancho ? 'ancho' : '' %>">
+        <label class="<%= c.requerido ? 'requerido' : '' %>" for="<%= id %>"><%= c.etiqueta %></label>
+        <% if (c.tipo === 'select') { %>
+          <select id="<%= id %>" name="<%= c.nombre %>" <%= c.requerido ? 'required' : '' %>>
+            <% if (!c.sinVacio) { %><option value=""><%= c.vacio || 'Seleccione...' %></option><% } %>
+            <% (c.opciones || []).forEach(function (o) { const val = Array.isArray(o) ? o[0] : o; const txt = Array.isArray(o) ? o[1] : o; %>
+              <option value="<%= val %>" <%= String(v) === String(val) ? 'selected' : '' %>><%= txt %></option>
+            <% }) %>
+          </select>
+        <% } else if (c.tipo === 'textarea') { %>
+          <textarea id="<%= id %>" name="<%= c.nombre %>" <%= c.maxlength ? 'maxlength=' + c.maxlength : '' %> <%= c.requerido ? 'required' : '' %> placeholder="<%= c.placeholder || '' %>"><%= v %></textarea>
+        <% } else if (c.tipo === 'casillas') { %>
+          <div class="casillas">
+            <% (c.opciones || []).forEach(function (o) { %>
+              <label><input type="checkbox" name="<%= c.nombre %>[]" value="<%= o[0] %>" <%= (v || []).map(String).includes(String(o[0])) ? 'checked' : '' %>> <%= o[1] %></label>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <input id="<%= id %>" type="<%= c.tipo || 'text' %>" name="<%= c.nombre %>" value="<%= v %>"
+            <%= c.requerido ? 'required' : '' %> <%= c.maxlength ? 'maxlength=' + c.maxlength : '' %>
+            <%= c.min !== undefined ? 'min=' + c.min : '' %> <%= c.max !== undefined ? 'max=' + c.max : '' %>
+            <%= c.paso !== undefined ? 'step=' + c.paso : '' %> <%= c.minlength ? 'minlength=' + c.minlength : '' %>
+            <%= c.omitirVacio ? 'data-omitir-vacio' : '' %> <%= c.autocompletar ? 'autocomplete=' + c.autocompletar : '' %>
+            placeholder="<%= c.placeholder || '' %>" <%= c.lista ? 'list=' + id + '-lista' : '' %>>
+          <% if (c.lista) { %><datalist id="<%= id %>-lista"><% c.lista.forEach(function (o) { %><option value="<%= o %>"><% }) %></datalist><% } %>
+        <% } %>
+        <% if (c.ayuda) { %><small><%= c.ayuda %></small><% } %>
+      </div>
+    <% }) %>
+  </div>
+  <div class="pie-formulario">
+    <a class="btn" href="<%= cancelar %>">Cancelar</a>
+    <button class="btn btn-primario" type="submit"><%= boton %></button>
+  </div>
+</form>

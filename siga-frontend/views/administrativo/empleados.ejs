@@ -1,0 +1,53 @@
+<%- include('../partials/arriba', { titulo: 'Empleados' }) %>
+<%- include('../partials/encabezado', {
+  titulo: 'Empleados',
+  subtitulo: 'Usuarios internos del sistema y sus roles (RF03).',
+  acciones: es() ? [{ texto: 'Nuevo empleado', ruta: '/empleados/nuevo', clase: 'btn-primario' }] : []
+}) %>
+<div class="tarjeta">
+  <form class="filtros" method="GET">
+    <div class="campo"><label for="f-rol">Rol</label>
+      <select id="f-rol" name="rol" data-auto><option value="">Todos</option>
+        <% ['Administrador', 'Supervisor', 'Trabajador de Campo', 'Tecnico Electronico', 'Jefe de Inventario', 'Responsable SST', 'Gerente'].forEach(function (r) { %><option <%= q.rol === r ? 'selected' : '' %>><%= r %></option><% }) %>
+      </select></div>
+    <div class="campo"><label for="f-estado">Estado</label>
+      <select id="f-estado" name="estado" data-auto><option value="">Todos</option><option <%= q.estado === 'Activo' ? 'selected' : '' %>>Activo</option><option <%= q.estado === 'Inactivo' ? 'selected' : '' %>>Inactivo</option></select></div>
+  </form>
+  <div class="tabla-contenedor"><table>
+    <thead><tr><th>Nombre</th><th>Rol</th><th>Contacto</th><th class="num">Salario base</th><th>Estado</th><% if (es()) { %><th></th><% } %></tr></thead>
+    <tbody>
+    <% empleados.forEach(function (e) { %>
+      <tr>
+        <td><strong><%= e.nombre %></strong><div class="tenue pequeno">C.C. <%= e.documento %> &middot; <span class="mono"><%= e.codigo_qr || '' %></span></div></td>
+        <td><%= e.rol %></td>
+        <td><%= e.email %><div class="tenue pequeno"><%= e.telefono || '' %></div></td>
+        <td class="num"><%= f.pesos(e.salario_base) %></td>
+        <td><%- include('../partials/estado', { valor: e.estado }) %></td>
+        <% if (es()) { %>
+        <td class="celda-acciones">
+          <a class="btn btn-sm" href="/empleados/<%= e.id_empleado %>/carne">Carne</a>
+          <a class="btn btn-sm" href="/empleados/<%= e.id_empleado %>/editar">Editar</a>
+          <button class="btn btn-sm" data-abrir="dlg-clave" data-api="/api/empleados/<%= e.id_empleado %>/password" data-valores='<%= JSON.stringify({ nombre: e.nombre }) %>'>Clave</button>
+          <% if (e.id_empleado !== usuario.id) { %>
+            <button class="btn btn-sm btn-peligro" data-accion="/api/empleados/<%= e.id_empleado %>" data-metodo="DELETE" data-confirmar="Se eliminara a <%= e.nombre %>. Si tiene registros asociados, mejor cambie su estado a Inactivo.">Eliminar</button>
+          <% } %>
+        </td>
+        <% } %>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table></div>
+</div>
+
+<dialog id="dlg-clave">
+  <div class="dialogo-cabeza"><h2>Restablecer contrasena</h2><button class="cerrar" type="button" data-cerrar>&times;</button></div>
+  <div class="dialogo-cuerpo">
+    <form data-api="" data-metodo="PUT">
+      <div class="aviso error aviso-formulario oculto" role="alert"></div>
+      <p style="margin-bottom:.8rem">Nueva contrasena para <strong data-texto="nombre"></strong>. Entreguela de forma privada y pida al empleado cambiarla en su perfil.</p>
+      <div class="campo"><label class="requerido" for="nueva">Nueva contrasena</label><input type="password" id="nueva" name="nueva" minlength="8" required autocomplete="new-password"><small>Minimo 8 caracteres con mayuscula, minuscula y numero.</small></div>
+      <div class="pie-formulario"><button class="btn" type="button" data-cerrar>Cancelar</button><button class="btn btn-primario" type="submit">Guardar</button></div>
+    </form>
+  </div>
+</dialog>
+<%- include('../partials/abajo') %>

@@ -1,0 +1,18 @@
+<% if (!filas || !filas.length) { %>
+  <p class="vacio">Aun no hay labores registradas.</p>
+<% } else { %>
+<div class="tabla-contenedor"><table>
+  <thead><tr><th>Contrato</th><th>Avance</th><th class="num">Finalizadas</th><% if (typeof compacta === 'undefined' || !compacta) { %><th class="num">En proceso</th><th class="num">Programadas</th><% } %><th class="num">Cumplimiento</th></tr></thead>
+  <tbody>
+  <% filas.forEach(function (c) { const avance = c.total ? Math.round(c.finalizadas * 100 / c.total) : 0; %>
+    <tr>
+      <td><strong><%= c.numero_contrato %></strong><div class="tenue pequeno"><%= c.nombre_cliente %></div></td>
+      <td style="min-width:120px"><div class="progreso" title="<%= avance %> %"><span style="width:<%= avance %>%"></span></div><div class="tenue pequeno"><%= avance %> % de <%= c.total %> labores</div></td>
+      <td class="num"><%= c.finalizadas %></td>
+      <% if (typeof compacta === 'undefined' || !compacta) { %><td class="num"><%= c.en_proceso %></td><td class="num"><%= c.programadas %></td><% } %>
+      <td class="num"><%= f.porcentaje(c.cumplimiento_promedio) %></td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table></div>
+<% } %>

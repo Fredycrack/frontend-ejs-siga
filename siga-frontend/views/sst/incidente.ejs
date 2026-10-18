@@ -1,0 +1,39 @@
+<% const i = incidente; const sst = es('Responsable SST'); %>
+<%- include('../partials/arriba', { titulo: i.tipo + ' del ' + f.fecha(i.fecha_evento) }) %>
+<%- include('../partials/encabezado', { titulo: i.tipo + ' en ' + i.lugar, subtitulo: f.fechaHora(i.fecha_evento), migas: [['Incidentes', '/incidentes']] }) %>
+<div class="rejilla rejilla-2">
+  <div class="tarjeta">
+    <div class="tarjeta-cabeza"><h2>Reporte</h2><%- include('../partials/estado', { valor: i.estado }) %></div>
+    <dl class="ficha">
+      <dt>Tipo</dt><dd><%= i.tipo %></dd>
+      <dt>Gravedad</dt><dd><%= i.gravedad %></dd>
+      <dt>Trabajador</dt><dd><%= i.empleado || 'No aplica' %></dd>
+      <dt>Dias de incapacidad</dt><dd><%= i.dias_incapacidad %></dd>
+      <dt>Descripcion</dt><dd><%= i.descripcion %></dd>
+      <dt>Causas</dt><dd><%= i.causas || 'Sin analizar' %></dd>
+      <dt>Acciones correctivas</dt><dd><%= i.acciones_correctivas || 'Pendientes' %></dd>
+      <dt>Reporte a la ARL</dt><dd><%= i.reportado_arl ? 'Si' : 'No' %></dd>
+      <dt>Registrado</dt><dd><%= f.fechaHora(i.fecha_registro) %></dd>
+    </dl>
+  </div>
+  <% if (sst) { %>
+  <form class="tarjeta" data-api="/api/incidentes/<%= i.id_incidente %>" data-metodo="PUT">
+    <h2>Seguimiento</h2>
+    <div class="aviso error aviso-formulario oculto" role="alert"></div>
+    <div class="campos">
+      <div class="campo"><label for="s-estado">Estado</label>
+        <select id="s-estado" name="estado"><% ['Abierto', 'En seguimiento', 'Cerrado'].forEach(function (e) { %><option <%= i.estado === e ? 'selected' : '' %>><%= e %></option><% }) %></select></div>
+      <div class="campo"><label for="s-dias">Dias de incapacidad</label><input type="number" id="s-dias" name="dias_incapacidad" min="0" value="<%= i.dias_incapacidad %>"></div>
+      <div class="campo ancho"><label for="s-causas">Causas</label><textarea id="s-causas" name="causas" maxlength="500"><%= i.causas || '' %></textarea></div>
+      <div class="campo ancho"><label for="s-acciones">Acciones correctivas</label><textarea id="s-acciones" name="acciones_correctivas" maxlength="500"><%= i.acciones_correctivas || '' %></textarea>
+        <small>Para cerrar el caso deben quedar registradas las acciones correctivas.</small></div>
+      <div class="campo ancho"><label><input type="checkbox" name="reportado_arl" <%= i.reportado_arl ? 'checked' : '' %>> Reportado a la ARL<% if (i.tipo === 'Accidente') { %> (obligatorio para accidentes, dentro de los 2 dias habiles siguientes)<% } %></label></div>
+    </div>
+    <div class="pie-formulario">
+      <button class="btn btn-peligro" type="button" data-accion="/api/incidentes/<%= i.id_incidente %>" data-metodo="DELETE" data-confirmar="Se eliminara el reporte del evento." data-volver="/incidentes">Eliminar</button>
+      <button class="btn btn-primario" type="submit">Guardar seguimiento</button>
+    </div>
+  </form>
+  <% } %>
+</div>
+<%- include('../partials/abajo') %>

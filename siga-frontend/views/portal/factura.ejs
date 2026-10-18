@@ -1,0 +1,25 @@
+<% const x = factura; %>
+<%- include('../partials/arriba', { titulo: 'Factura ' + x.numero_factura }) %>
+<%- include('../partials/encabezado', { titulo: 'Factura ' + x.numero_factura, subtitulo: 'Emitida el ' + f.fecha(x.fecha_emision) + ' - vence el ' + f.fecha(x.fecha_vencimiento), migas: [['Mis facturas', '/portal/facturas']],
+  acciones: [{ texto: 'Descargar PDF', ruta: '/api/portal/facturas/' + x.id_factura + '/pdf', descargar: true, clase: 'btn-primario' }] }) %>
+<div class="rejilla rejilla-2-1">
+  <div class="tarjeta">
+    <div class="tarjeta-cabeza"><h2>Detalle</h2><%- include('../partials/estado', { valor: x.estado }) %></div>
+    <div class="tabla-contenedor"><table>
+      <thead><tr><th>Descripcion</th><th class="num">Cantidad</th><th class="num">Valor unitario</th><th class="num">Subtotal</th></tr></thead>
+      <tbody><% x.detalles.forEach(function (d) { %><tr><td><%= d.descripcion %></td><td class="num"><%= f.numero(d.cantidad, 2) %></td><td class="num"><%= f.pesos(d.valor_unitario) %></td><td class="num"><%= f.pesos(d.subtotal) %></td></tr><% }) %></tbody>
+      <tfoot>
+        <tr><td colspan="3" class="derecha">Subtotal</td><td class="num"><%= f.pesos(x.subtotal) %></td></tr>
+        <tr><td colspan="3" class="derecha">IVA <%= f.numero(x.porcentaje_iva, 2) %> %</td><td class="num"><%= f.pesos(x.impuesto_iva) %></td></tr>
+        <tr><td colspan="3" class="derecha">Total</td><td class="num"><%= f.pesos(x.total) %></td></tr>
+      </tfoot>
+    </table></div>
+  </div>
+  <div class="tarjeta">
+    <h2>Pagos</h2>
+    <dl class="ficha"><dt>Total</dt><dd><%= f.pesos(x.total) %></dd><dt>Pagado</dt><dd><%= f.pesos(Number(x.total) - Number(x.saldo)) %></dd><dt>Saldo</dt><dd><strong><%= f.pesos(x.saldo) %></strong></dd></dl>
+    <% if (x.pagos.length) { %><ul class="linea-tiempo" style="margin-top:1rem"><% x.pagos.forEach(function (p) { %><li class="hecho"><strong><%= f.pesos(p.valor) %></strong><div class="tenue pequeno"><%= f.fecha(p.fecha_pago) %> &middot; <%= p.medio_pago %></div></li><% }) %></ul><% } %>
+    <% if (Number(x.saldo) > 0) { %><p class="tenue pequeno" style="margin-top:1rem">Para pagar, consigne o transfiera a la cuenta de AGROSERVICES P&amp;D S.A.S. indicando el numero de la factura.</p><% } %>
+  </div>
+</div>
+<%- include('../partials/abajo') %>

@@ -1,0 +1,116 @@
+<% const e = equipo;
+   const ESTADOS = ['Recibido', 'En diagnostico', 'En proceso', 'Completado', 'Entregado'];
+   const i = ESTADOS.indexOf(e.estado);
+   const siguiente = ESTADOS[i + 1];
+   const tecnico = es('Tecnico Electronico');
+   const textoSiguiente = { 'En proceso': 'Iniciar reparacion', Completado: 'Marcar como reparado', Entregado: 'Registrar entrega al cliente' }; %>
+<%- include('../partials/arriba', { titulo: 'Equipo ' + e.codigo_seguimiento }) %>
+<%- include('../partials/encabezado', {
+  titulo: e.tipo_equipo + ' ' + [e.marca, e.modelo].filter(Boolean).join(' '),
+  subtitulo: 'Codigo de seguimiento ' + e.codigo_seguimiento + ' - ' + e.nombre_cliente,
+  migas: [['Equipos', '/equipos']]
+}) %>
+
+<div class="rejilla rejilla-2-1">
+  <div>
+    <div class="tarjeta">
+      <div class="tarjeta-cabeza"><h2>Recepcion</h2><%- include('../partials/estado', { valor: e.estado }) %></div>
+      <dl class="ficha">
+        <dt>Cliente</dt><dd><%= e.nombre_cliente %><div class="tenue pequeno"><%= e.telefono_cliente || '' %> <%= e.email_cliente || '' %></div></dd>
+        <dt>Equipo</dt><dd><%= e.tipo_equipo %> <%= [e.marca, e.modelo].filter(Boolean).join(' ') %><% if (e.serial) { %> &middot; Serial <span class="mono"><%= e.serial %></span><% } %></dd>
+        <dt>Recibido</dt><dd><%= f.fechaHora(e.fecha_recepcion) %></dd>
+        <dt>Tecnico</dt><dd><%= e.tecnico || 'Sin asignar' %></dd>
+        <dt>Problema reportado</dt><dd><%= e.problema_reportado %></dd>
+        <% if (e.fecha_entrega) { %><dt>Entregado</dt><dd><%= f.fechaHora(e.fecha_entrega) %></dd><% } %>
+      </dl>
+      <% if (tecnico && e.estado === 'Recibido') { %>
+        <div class="pie-formulario no-imprimir">
+          <button class="btn btn-peligro" data-accion="/api/equipos/<%= e.id_equipo %>" data-metodo="DELETE" data-confirmar="Se eliminara el registro del equipo." data-volver="/equipos">Eliminar</button>
+          <a class="btn" href="/equipos/<%= e.id_equipo %>/editar">Editar datos</a>
+        </div>
+      <% } %>
+    </div>
+
+    <div class="tarjeta">
+      <div class="tarjeta-cabeza"><h2>Diagnostico y cotizacion</h2>
+        <% if (e.valor_cotizacion !== null) { %><span class="etiqueta <%= e.cotizacion_aprobada ? 'verde' : 'ambar' %>"><%= e.cotizacion_aprobada ? 'Cotizacion aprobada' : 'Esperando aprobacion' %></span><% } %>
+      </div>
+      <% if (e.diagnostico) { %>
+        <dl class="ficha" style="margin-bottom:1rem">
+          <dt>Diagnostico</dt><dd><%= e.diagnostico %></dd>
+          <dt>Valor cotizado</dt><dd><%= f.pesos(e.valor_cotizacion) %></dd>
+        </dl>
+      <% } else { %>
+        <p class="tenue" style="margin-bottom:1rem">El equipo aun no tiene diagnostico.</p>
+      <% } %>
+      <% if (tecnico && i < 3) { %>
+        <form class="no-imprimir" data-api="/api/equipos/<%= e.id_equipo %>/diagnostico" data-metodo="PUT">
+          <div class="aviso error aviso-formulario oculto" role="alert"></div>
+          <div class="campos">
+            <div class="campo ancho"><label class="requerido" for="diagnostico"><%= e.diagnostico ? 'Actualizar diagnostico' : 'Diagnostico tecnico' %></label>
+              <textarea id="diagnostico" name="diagnostico" maxlength="500" required><%= e.diagnostico || '' %></textarea></div>
+            <div class="campo"><label class="requerido" for="valor_cotizacion">Valor de la reparacion (COP)</label>
+              <input type="number" id="valor_cotizacion" name="valor_cotizacion" min="0" step="100" required value="<%= e.valor_cotizacion === null ? '' : e.valor_cotizacion %>"></div>
+          </div>
+          <div class="pie-formulario">
+            <% if (e.valor_cotizacion !== null && !e.cotizacion_aprobada) { %>
+              <button class="btn" type="button" data-accion="/api/equipos/<%= e.id_equipo %>/aprobar-cotizacion" data-metodo="PUT" data-confirmar="Confirme que el cliente aprobo la cotizacion de <%= f.pesos(e.valor_cotizacion) %> (por telefono o en persona). El cliente tambien puede aprobarla desde el portal.">Registrar aprobacion del cliente</button>
+            <% } %>
+            <button class="btn btn-primario" type="submit">Guardar diagnostico</button>
+          </div>
+        </form>
+      <% } %>
+    </div>
+
+    <div class="tarjeta">
+      <div class="tarjeta-cabeza"><h2>Repuestos utilizados</h2><span class="tenue">Costo: <strong><%= f.pesos(e.costo_repuestos) %></strong></span></div>
+      <% if (!e.repuestos.length) { %>
+        <p class="tenue">No se han registrado repuestos.</p>
+      <% } else { %>
+        <div class="tabla-contenedor"><table>
+          <thead><tr><th>Repuesto</th><th class="num">Cantidad</th><th class="num">Costo unitario</th><th class="num">Subtotal</th></tr></thead>
+          <tbody><% e.repuestos.forEach(function (r) { %>
+            <tr><td><%= r.nombre_producto %><div class="tenue pequeno"><%= r.codigo_producto %> &middot; <%= f.fecha(r.fecha) %></div></td>
+              <td class="num"><%= f.numero(r.cantidad, 2) %></td><td class="num"><%= f.pesos(r.costo_unitario) %></td><td class="num"><%= f.pesos(r.subtotal) %></td></tr>
+          <% }) %></tbody>
+        </table></div>
+      <% } %>
+      <% if (tecnico && (e.estado === 'En diagnostico' || e.estado === 'En proceso')) { %>
+        <form class="no-imprimir" data-api="/api/equipos/<%= e.id_equipo %>/repuestos" style="margin-top:1rem">
+          <div class="aviso error aviso-formulario oculto" role="alert"></div>
+          <div class="campos">
+            <div class="campo"><label class="requerido" for="id_inventario">Repuesto del inventario</label>
+              <select id="id_inventario" name="id_inventario" required><option value="">Seleccione...</option>
+                <% repuestos.forEach(function (r) { %><option value="<%= r.id_inventario %>" <%= Number(r.cantidad_disponible) <= 0 ? 'disabled' : '' %>><%= r.nombre_producto %> (disponibles: <%= f.numero(r.cantidad_disponible) %>)</option><% }) %>
+              </select></div>
+            <div class="campo"><label class="requerido" for="cantidad">Cantidad</label><input type="number" id="cantidad" name="cantidad" min="1" step="1" value="1" required></div>
+          </div>
+          <div class="pie-formulario"><button class="btn" type="submit">Registrar repuesto</button></div>
+          <p class="tenue pequeno">RF15: el repuesto se descuenta del inventario; si queda en el minimo se genera la orden de compra automaticamente.</p>
+        </form>
+      <% } %>
+    </div>
+  </div>
+
+  <div>
+    <div class="tarjeta">
+      <h2>Estado de la reparacion</h2>
+      <ul class="linea-tiempo">
+        <% ESTADOS.forEach(function (s, k) { %>
+          <li class="<%= k < i ? 'hecho' : (k === i ? 'actual' : '') %>"><strong><%= s %></strong></li>
+        <% }) %>
+      </ul>
+      <% if (tecnico && siguiente && i >= 1) { %>
+        <button class="btn btn-primario btn-bloque no-imprimir" data-accion="/api/equipos/<%= e.id_equipo %>/estado" data-metodo="PUT" data-cuerpo='{"estado":"<%= siguiente %>"}' data-confirmar="El equipo pasara a estado <%= siguiente %>."><%= textoSiguiente[siguiente] || ('Pasar a ' + siguiente) %></button>
+      <% } %>
+    </div>
+    <div class="tarjeta centro">
+      <h2>Comprobante para el cliente</h2>
+      <p class="tenue pequeno">Con este codigo el cliente consulta el estado en linea, sin iniciar sesion.</p>
+      <p class="mono" style="font-size:1.9rem;font-weight:700;letter-spacing:.15em;margin:.6rem 0"><%= e.codigo_seguimiento %></p>
+      <p class="pequeno">Consulte en <strong>/seguimiento</strong> del sitio de SIGA</p>
+      <button class="btn btn-sm no-imprimir" type="button" data-imprimir style="margin-top:.8rem">Imprimir comprobante</button>
+    </div>
+  </div>
+</div>
+<%- include('../partials/abajo') %>
